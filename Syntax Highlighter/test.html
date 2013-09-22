@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+  <title></title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <style type="text/css">
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+pre { line-height: 125%; }
+body .hll { background-color: #222222 }
+body  { background: #000000; color: #cccccc }
+body .c { color: #000080 } /* Comment */
+body .err { color: #cccccc; border: 1px solid #FF0000 } /* Error */
+body .g { color: #cccccc } /* Generic */
+body .k { color: #cdcd00 } /* Keyword */
+body .l { color: #cccccc } /* Literal */
+body .n { color: #cccccc } /* Name */
+body .o { color: #3399cc } /* Operator */
+body .x { color: #cccccc } /* Other */
+body .p { color: #cccccc } /* Punctuation */
+body .cm { color: #000080 } /* Comment.Multiline */
+body .cp { color: #000080 } /* Comment.Preproc */
+body .c1 { color: #000080 } /* Comment.Single */
+body .cs { color: #cd0000; font-weight: bold } /* Comment.Special */
+body .gd { color: #cd0000 } /* Generic.Deleted */
+body .ge { color: #cccccc; font-style: italic } /* Generic.Emph */
+body .gr { color: #FF0000 } /* Generic.Error */
+body .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+body .gi { color: #00cd00 } /* Generic.Inserted */
+body .go { color: #808080 } /* Generic.Output */
+body .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+body .gs { color: #cccccc; font-weight: bold } /* Generic.Strong */
+body .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+body .gt { color: #0040D0 } /* Generic.Traceback */
+body .kc { color: #cdcd00 } /* Keyword.Constant */
+body .kd { color: #00cd00 } /* Keyword.Declaration */
+body .kn { color: #cd00cd } /* Keyword.Namespace */
+body .kp { color: #cdcd00 } /* Keyword.Pseudo */
+body .kr { color: #cdcd00 } /* Keyword.Reserved */
+body .kt { color: #00cd00 } /* Keyword.Type */
+body .ld { color: #cccccc } /* Literal.Date */
+body .m { color: #cd00cd } /* Literal.Number */
+body .s { color: #cd0000 } /* Literal.String */
+body .na { color: #cccccc } /* Name.Attribute */
+body .nb { color: #cd00cd } /* Name.Builtin */
+body .nc { color: #00cdcd } /* Name.Class */
+body .no { color: #cccccc } /* Name.Constant */
+body .nd { color: #cccccc } /* Name.Decorator */
+body .ni { color: #cccccc } /* Name.Entity */
+body .ne { color: #666699; font-weight: bold } /* Name.Exception */
+body .nf { color: #cccccc } /* Name.Function */
+body .nl { color: #cccccc } /* Name.Label */
+body .nn { color: #cccccc } /* Name.Namespace */
+body .nx { color: #cccccc } /* Name.Other */
+body .py { color: #cccccc } /* Name.Property */
+body .nt { color: #cccccc } /* Name.Tag */
+body .nv { color: #00cdcd } /* Name.Variable */
+body .ow { color: #cdcd00 } /* Operator.Word */
+body .w { color: #cccccc } /* Text.Whitespace */
+body .mf { color: #cd00cd } /* Literal.Number.Float */
+body .mh { color: #cd00cd } /* Literal.Number.Hex */
+body .mi { color: #cd00cd } /* Literal.Number.Integer */
+body .mo { color: #cd00cd } /* Literal.Number.Oct */
+body .sb { color: #cd0000 } /* Literal.String.Backtick */
+body .sc { color: #cd0000 } /* Literal.String.Char */
+body .sd { color: #cd0000 } /* Literal.String.Doc */
+body .s2 { color: #cd0000 } /* Literal.String.Double */
+body .se { color: #cd0000 } /* Literal.String.Escape */
+body .sh { color: #cd0000 } /* Literal.String.Heredoc */
+body .si { color: #cd0000 } /* Literal.String.Interpol */
+body .sx { color: #cd0000 } /* Literal.String.Other */
+body .sr { color: #cd0000 } /* Literal.String.Regex */
+body .s1 { color: #cd0000 } /* Literal.String.Single */
+body .ss { color: #cd0000 } /* Literal.String.Symbol */
+body .bp { color: #cd00cd } /* Name.Builtin.Pseudo */
+body .vc { color: #00cdcd } /* Name.Variable.Class */
+body .vg { color: #00cdcd } /* Name.Variable.Global */
+body .vi { color: #00cdcd } /* Name.Variable.Instance */
+body .il { color: #cd00cd } /* Literal.Number.Integer.Long */
+
+  </style>
+</head>
+<body>
+<h2></h2>
+
+<div class="highlight"><pre><span class="c1">// Libraries </span>
+
+<span class="cp">#include &lt;list&gt;</span>
+<span class="cp">#include &lt;vector&gt;</span>
+<span class="cp">#include &lt;list&gt;</span>
+<span class="cp">#include &lt;map&gt;</span>
+<span class="cp">#include &lt;set&gt;</span>
+<span class="cp">#include &lt;queue&gt;</span>
+<span class="cp">#include &lt;deque&gt;</span>
+<span class="cp">#include &lt;stack&gt;</span>
+<span class="cp">#include &lt;bitset&gt;</span>
+<span class="cp">#include &lt;algorithm&gt;</span>
+<span class="cp">#include &lt;functional&gt;</span>
+<span class="cp">#include &lt;numeric&gt;</span>
+<span class="cp">#include &lt;utility&gt;</span>
+<span class="cp">#include &lt;sstream&gt;</span>
+<span class="cp">#include &lt;iostream&gt;</span>
+<span class="cp">#include &lt;iomanip&gt;</span>
+<span class="cp">#include &lt;cstdio&gt;</span>
+<span class="cp">#include &lt;cmath&gt;</span>
+<span class="cp">#include &lt;cstdlib&gt;</span>
+<span class="cp">#include &lt;cstring&gt;</span>
+<span class="cp">#include &lt;queue&gt;</span>
+<span class="cp">#include &lt;ctime&gt;</span>
+<span class="cp">#include &lt;cassert&gt;</span>
+<span class="cp">#include &lt;climits&gt;</span>
+<span class="cp">#include &lt;limits&gt;</span>
+
+<span class="c1">// Definitions </span>
+
+<span class="cp">#define pb push_back</span>
+<span class="cp">#define max(i,j) (i&gt;j?i:j)</span>
+<span class="cp">#define min(i,j) (i&lt;j?i:j)</span>
+<span class="cp">#define mod 1000000007</span>
+<span class="cp">#define s(n)					scanf(&quot;%d&quot;,&amp;n)</span>
+<span class="cp">#define sl(n) 					scanf(&quot;%lld&quot;,&amp;n)</span>
+<span class="cp">#define sf(n) 					scanf(&quot;%lf&quot;,&amp;n)</span>
+<span class="cp">#define ss(n) 					scanf(&quot;%s&quot;,n)</span>
+<span class="cp">#define pf printf</span>
+<span class="cp">#define mset(x,v) memset(x,v,sizeof(x))</span>
+<span class="cp">#define LL long long int</span>
+<span class="cp">#define FOR(i,a,b) for(LL i=(LL)(a);i&lt;(LL)(b);i++)</span>
+<span class="cp">#define REV(i,a,b) for(LL i=(LL)(a);i&gt;=(LL)(b);i--)</span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">vector</span> <span class="o">&lt;</span> <span class="n">LL</span> <span class="o">&gt;</span> <span class="n">row</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="n">vector</span> <span class="o">&lt;</span> <span class="n">row</span> <span class="o">&gt;</span> <span class="n">matrix</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">arr</span><span class="p">[]</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">};</span>
+<span class="c1">// Global Declarations</span>
+<span class="kt">int</span> <span class="n">findMajorityElement</span><span class="p">(</span> <span class="kt">int</span> <span class="n">size</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">majorityElement</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">majorityElement</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">majorityElement</span><span class="p">)</span>
+                <span class="n">count</span><span class="o">++</span><span class="p">;</span>
+            <span class="k">else</span>
+                <span class="n">count</span><span class="o">--</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+	<span class="n">pf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">majorityElement</span><span class="p">);</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">majorityElement</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">count</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="n">size</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">majorityElement</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">LL</span> <span class="n">T</span><span class="p">;</span>
+	<span class="n">findMajorityElement</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</body>
+</html>

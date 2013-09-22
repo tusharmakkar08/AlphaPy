@@ -1,0 +1,81 @@
+{\rtf1\ansi\deff0{\fonttbl{\f0\fmodern\fprq1\fcharset0;}}{\colortbl;\red136\green136\blue136;\red170\green85\blue0;\red170\green0\blue0;\red0\green153\blue153;\red170\green170\blue170;\red0\green0\blue170;\red128\green0\blue0;\red0\green170\blue0;\red0\green170\blue170;\red128\green0\blue128;\red240\green0\blue0;\red240\green160\blue160;\red187\green187\blue187;\red76\green131\blue23;\red85\green85\blue85;\red30\green144\blue255;\red0\green0\blue128;}\f0{\cf5\i // Libraries \par
+}\par
+{\cf14 #}{\cf14 include <list>}{\cf14 \par
+}{\cf14 #}{\cf14 include <vector>}{\cf14 \par
+}{\cf14 #}{\cf14 include <list>}{\cf14 \par
+}{\cf14 #}{\cf14 include <map>}{\cf14 \par
+}{\cf14 #}{\cf14 include <set>}{\cf14 \par
+}{\cf14 #}{\cf14 include <queue>}{\cf14 \par
+}{\cf14 #}{\cf14 include <deque>}{\cf14 \par
+}{\cf14 #}{\cf14 include <stack>}{\cf14 \par
+}{\cf14 #}{\cf14 include <bitset>}{\cf14 \par
+}{\cf14 #}{\cf14 include <algorithm>}{\cf14 \par
+}{\cf14 #}{\cf14 include <functional>}{\cf14 \par
+}{\cf14 #}{\cf14 include <numeric>}{\cf14 \par
+}{\cf14 #}{\cf14 include <utility>}{\cf14 \par
+}{\cf14 #}{\cf14 include <sstream>}{\cf14 \par
+}{\cf14 #}{\cf14 include <iostream>}{\cf14 \par
+}{\cf14 #}{\cf14 include <iomanip>}{\cf14 \par
+}{\cf14 #}{\cf14 include <cstdio>}{\cf14 \par
+}{\cf14 #}{\cf14 include <cmath>}{\cf14 \par
+}{\cf14 #}{\cf14 include <cstdlib>}{\cf14 \par
+}{\cf14 #}{\cf14 include <cstring>}{\cf14 \par
+}{\cf14 #}{\cf14 include <queue>}{\cf14 \par
+}{\cf14 #}{\cf14 include <ctime>}{\cf14 \par
+}{\cf14 #}{\cf14 include <cassert>}{\cf14 \par
+}{\cf14 #}{\cf14 include <climits>}{\cf14 \par
+}{\cf14 #}{\cf14 include <limits>}{\cf14 \par
+}\par
+{\cf5\i // Definitions \par
+}\par
+{\cf14 #}{\cf14 define pb push_back}{\cf14 \par
+}{\cf14 #}{\cf14 define max(i,j) (i>j?i:j)}{\cf14 \par
+}{\cf14 #}{\cf14 define min(i,j) (i<j?i:j)}{\cf14 \par
+}{\cf14 #}{\cf14 define mod 1000000007}{\cf14 \par
+}{\cf14 #}{\cf14 define s(n)					scanf("%d",&n)}{\cf14 \par
+}{\cf14 #}{\cf14 define sl(n) 					scanf("%lld",&n)}{\cf14 \par
+}{\cf14 #}{\cf14 define sf(n) 					scanf("%lf",&n)}{\cf14 \par
+}{\cf14 #}{\cf14 define ss(n) 					scanf("%s",n)}{\cf14 \par
+}{\cf14 #}{\cf14 define pf printf}{\cf14 \par
+}{\cf14 #}{\cf14 define mset(x,v) memset(x,v,sizeof(x))}{\cf14 \par
+}{\cf14 #}{\cf14 define LL long long int}{\cf14 \par
+}{\cf14 #}{\cf14 define FOR(i,a,b) for(LL i=(LL)(a);i<(LL)(b);i++)}{\cf14 \par
+}{\cf14 #}{\cf14 define REV(i,a,b) for(LL i=(LL)(a);i>=(LL)(b);i--)}{\cf14 \par
+}\par
+{\cf6 using} {\cf6 namespace} std;\par
+\par
+{\cf6 typedef} vector < LL > row;\par
+{\cf6 typedef} vector < row > matrix;\par
+{\cf9 int} arr[]=\{{\cf4 1},{\cf4 2},{\cf4 3},{\cf4 3},{\cf4 2},{\cf4 2}\};\par
+{\cf5\i // Global Declarations\par
+}{\cf9 int} findMajorityElement( {\cf9 int} size)\par
+\{\par
+    {\cf9 int} count = {\cf4 0}, i, majorityElement;\par
+    {\cf6 for} (i = {\cf4 0} ; i < size ; i++)\par
+    \{\par
+        {\cf6 if} (count == {\cf4 0}) \{\par
+            majorityElement = arr[i];\par
+            count = {\cf4 1};\par
+        \}\par
+        {\cf6 else}\par
+        \{\par
+            {\cf6 if}(arr[i] == majorityElement)\par
+                count++;\par
+            {\cf6 else}\par
+                count--;\par
+        \}\par
+    \}\par
+	pf({\cf2 "}{\cf2 %d}{\cf2 \\n}{\cf2 "},majorityElement);\par
+    count = {\cf4 0};\par
+    {\cf6 for} (i = {\cf4 0}; i < size; i++) \{\par
+        {\cf6 if} (arr[i] == majorityElement) \{\par
+            count++;\par
+    \}\}\par
+    {\cf6 if} (count > size/{\cf4 2}) \{\par
+        {\cf6 return} majorityElement;\par
+    \}\par
+    {\cf6 else} {\cf6 return} -{\cf4 1};\par
+\}\par
+{\cf9 int} main()\par
+\{LL T;findMajorityElement({\cf4 6});{\cf6 return} {\cf4 0};\}\par
+}
