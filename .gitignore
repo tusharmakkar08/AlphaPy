@@ -39,3 +39,4 @@ nosetests.xml
 *.rtf
 *.html
 *.tex
+*.pyc
