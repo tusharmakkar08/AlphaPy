@@ -1,0 +1,550 @@
+{\rtf1\ansi\deff0{\fonttbl{\f0\fmodern\fprq1\fcharset0;}}{\colortbl;\red136\green136\blue136;\red221\green34\blue0;\red255\green240\blue240;\red170\green0\blue0;\red0\green0\blue221;\red51\green102\blue153;\red0\green136\blue0;\red255\green240\blue255;\red0\green68\blue221;\red0\green51\blue102;\red221\green119\blue0;\red170\green102\blue0;\red0\green0\blue0;\red221\green255\blue221;\red0\green51\blue136;\red85\green85\blue85;\red255\green221\blue221;\red96\green96\blue96;\red166\green23\blue23;\red227\green210\blue210;\red0\green102\blue187;\red204\green0\blue0;\red187\green187\blue187;\red187\green0\blue102;\red51\green51\blue187;\red48\green48\blue48;\red34\green187\blue34;\red240\green255\blue240;}\f0{\cf1 #!/usr/bin/env python}\par
+\par
+{\cb3\cf2 """\par
+Simple desktop dialogue box support for Python.\par
+\par
+Copyright (C) 2007, 2009 Paul Boddie <paul@boddie.org.uk>\par
+\par
+This program is free software; you can redistribute it and/or modify it under\par
+the terms of the GNU Lesser General Public License as published by the Free\par
+Software Foundation; either version 3 of the License, or (at your option) any\par
+later version.\par
+\par
+This program is distributed in the hope that it will be useful, but WITHOUT\par
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\par
+FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more\par
+details.\par
+\par
+You should have received a copy of the GNU Lesser General Public License along\par
+with this program.  If not, see <http://www.gnu.org/licenses/>.\par
+\par
+--------\par
+\par
+Opening Dialogue Boxes (Dialogs)\par
+--------------------------------\par
+\par
+To open a dialogue box (dialog) in the current desktop environment, relying on\par
+the automatic detection of that environment, use the appropriate dialogue box\par
+class:\par
+\par
+question = desktop.dialog.Question("Are you sure?")\par
+result = question.open()\par
+\par
+To override the detected desktop, specify the desktop parameter to the open\par
+function as follows:\par
+\par
+question.open("KDE") # Insists on KDE\par
+question.open("GNOME") # Insists on GNOME\par
+\par
+The dialogue box options are documented in each class's docstring.\par
+\par
+Available dialogue box classes are listed in the desktop.dialog.available\par
+attribute.\par
+\par
+Supported desktop environments are listed in the desktop.dialog.supported\par
+attribute.\par
+"""}\par
+\par
+{\cf7\b from} {\cf24\b desktop} {\cf7\b import} use_desktop, _run, _readfrom, _status\par
+\par
+{\cf7\b class} {\cf24\b _wrapper}:\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, handler):\par
+        {\cf15 self}.handler = handler\par
+\par
+{\cf7\b class} {\cf24\b _readvalue}(_wrapper):\par
+    {\cf7\b def} {\cf21\b __call__}({\cf15 self}, cmd, shell):\par
+        {\cf7\b return} {\cf15 self}.handler(cmd, shell).strip()\par
+\par
+{\cf7\b class} {\cf24\b _readinput}(_wrapper):\par
+    {\cf7\b def} {\cf21\b __call__}({\cf15 self}, cmd, shell):\par
+        {\cf7\b return} {\cf15 self}.handler(cmd, shell)[:-{\cf5\b 1}]\par
+\par
+{\cf7\b class} {\cf24\b _readvalues_kdialog}(_wrapper):\par
+    {\cf7\b def} {\cf21\b __call__}({\cf15 self}, cmd, shell):\par
+        result = {\cf15 self}.handler(cmd, shell).strip().strip({\cb3\cf2 '}{\cb3\cf2 "}{\cb3\cf2 '})\par
+        {\cf7\b if} result:\par
+            {\cf7\b return} result.split({\cb3\cf2 '}{\cb3\cf2 "}{\cb3\cf2  }{\cb3\cf2 "}{\cb3\cf2 '})\par
+        {\cf7\b else}:\par
+            {\cf7\b return} []\par
+\par
+{\cf7\b class} {\cf24\b _readvalues_zenity}(_wrapper):\par
+    {\cf7\b def} {\cf21\b __call__}({\cf15 self}, cmd, shell):\par
+        result = {\cf15 self}.handler(cmd, shell).strip()\par
+        {\cf7\b if} result:\par
+            {\cf7\b return} result.split({\cb3\cf2 "}{\cb3\cf2 |}{\cb3\cf2 "})\par
+        {\cf7\b else}:\par
+            {\cf7\b return} []\par
+\par
+{\cf7\b class} {\cf24\b _readvalues_Xdialog}(_wrapper):\par
+    {\cf7\b def} {\cf21\b __call__}({\cf15 self}, cmd, shell):\par
+        result = {\cf15 self}.handler(cmd, shell).strip()\par
+        {\cf7\b if} result:\par
+            {\cf7\b return} result.split({\cb3\cf2 "}{\cb3\cf2 /}{\cb3\cf2 "})\par
+        {\cf7\b else}:\par
+            {\cf7\b return} []\par
+\par
+{\cf1 # Dialogue parameter classes.}\par
+\par
+{\cf7\b class} {\cf24\b String}:\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 A generic parameter.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, name):\par
+        {\cf15 self}.name = name\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        {\cf7\b return} [value {\cf7 or} {\cb3\cf2 "}{\cb3\cf2 "}]\par
+\par
+{\cf7\b class} {\cf24\b Strings}(String):\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 Multiple string parameters.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        {\cf7\b return} value {\cf7 or} []\par
+\par
+{\cf7\b class} {\cf24\b StringPairs}(String):\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 Multiple string parameters duplicated to make identifiers.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        l = []\par
+        {\cf7\b for} v {\cf7 in} value:\par
+            l.append(v)\par
+            l.append(v)\par
+        {\cf7\b return} l\par
+\par
+{\cf7\b class} {\cf24\b StringKeyword}:\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 A keyword parameter.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, keyword, name):\par
+        {\cf15 self}.keyword = keyword\par
+        {\cf15 self}.name = name\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        {\cf7\b return} [{\cf15 self}.keyword + {\cb3\cf2 "}{\cb3\cf2 =}{\cb3\cf2 "} + (value {\cf7 or} {\cb3\cf2 "}{\cb3\cf2 "})]\par
+\par
+{\cf7\b class} {\cf24\b StringKeywords}:\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 Multiple keyword parameters.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, keyword, name):\par
+        {\cf15 self}.keyword = keyword\par
+        {\cf15 self}.name = name\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        l = []\par
+        {\cf7\b for} v {\cf7 in} value {\cf7 or} []:\par
+            l.append({\cf15 self}.keyword + {\cb3\cf2 "}{\cb3\cf2 =}{\cb3\cf2 "} + v)\par
+        {\cf7\b return} l\par
+\par
+{\cf7\b class} {\cf24\b Integer}(String):\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 An integer parameter.}{\cb3\cf2 "}\par
+\par
+    defaults = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "} : {\cf5\b 40},\par
+        {\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "} : {\cf5\b 15},\par
+        {\cb3\cf2 "}{\cb3\cf2 list_height}{\cb3\cf2 "} : {\cf5\b 10}\par
+        \}\par
+    scale = {\cf5\b 8}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, name, pixels={\cf5\b 0}):\par
+        String.__init__({\cf15 self}, name)\par
+        {\cf7\b if} pixels:\par
+            {\cf15 self}.factor = {\cf15 self}.scale\par
+        {\cf7\b else}:\par
+            {\cf15 self}.factor = {\cf5\b 1}\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        {\cf7\b if} value {\cf7 is} {\cf15 None}:\par
+            value = {\cf15 self}.defaults[{\cf15 self}.name]\par
+        {\cf7\b return} [{\cf15 str}({\cf15 int}(value) * {\cf15 self}.factor)]\par
+\par
+{\cf7\b class} {\cf24\b IntegerKeyword}(Integer):\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 An integer keyword parameter.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, keyword, name, pixels={\cf5\b 0}):\par
+        Integer.__init__({\cf15 self}, name, pixels)\par
+        {\cf15 self}.keyword = keyword\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        {\cf7\b if} value {\cf7 is} {\cf15 None}:\par
+            value = {\cf15 self}.defaults[{\cf15 self}.name]\par
+        {\cf7\b return} [{\cf15 self}.keyword + {\cb3\cf2 "}{\cb3\cf2 =}{\cb3\cf2 "} + {\cf15 str}({\cf15 int}(value) * {\cf15 self}.factor)]\par
+\par
+{\cf7\b class} {\cf24\b Boolean}(String):\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 A boolean parameter.}{\cb3\cf2 "}\par
+\par
+    values = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : [{\cb3\cf2 "}{\cb3\cf2 off}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 on}{\cb3\cf2 "}],\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : [{\cb3\cf2 "}{\cb3\cf2 FALSE}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 TRUE}{\cb3\cf2 "}],\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : [{\cb3\cf2 "}{\cb3\cf2 off}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 on}{\cb3\cf2 "}]\par
+        \}\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        values = {\cf15 self}.values[program]\par
+        {\cf7\b if} value:\par
+            {\cf7\b return} [values[{\cf5\b 1}]]\par
+        {\cf7\b else}:\par
+            {\cf7\b return} [values[{\cf5\b 0}]]\par
+\par
+{\cf7\b class} {\cf24\b MenuItemList}(String):\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 A menu item list parameter.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        l = []\par
+        {\cf7\b for} v {\cf7 in} value:\par
+            l.append(v.value)\par
+            l.append(v.text)\par
+        {\cf7\b return} l\par
+\par
+{\cf7\b class} {\cf24\b ListItemList}(String):\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 A radiolist/checklist item list parameter.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, name, status_first={\cf5\b 0}):\par
+        String.__init__({\cf15 self}, name)\par
+        {\cf15 self}.status_first = status_first\par
+\par
+    {\cf7\b def} {\cf21\b convert}({\cf15 self}, value, program):\par
+        l = []\par
+        {\cf7\b for} v {\cf7 in} value:\par
+            boolean = Boolean({\cf15 None})\par
+            status = boolean.convert(v.status, program)\par
+            {\cf7\b if} {\cf15 self}.status_first:\par
+                l += status\par
+            l.append(v.value)\par
+            l.append(v.text)\par
+            {\cf7\b if} {\cf7 not} {\cf15 self}.status_first:\par
+                l += status\par
+        {\cf7\b return} l\par
+\par
+{\cf1 # Dialogue argument values.}\par
+\par
+{\cf7\b class} {\cf24\b MenuItem}:\par
+\par
+    {\cb3\cf2 "}{\cb3\cf2 A menu item which can also be used with radiolists and checklists.}{\cb3\cf2 "}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, value, text, status={\cf5\b 0}):\par
+        {\cf15 self}.value = value\par
+        {\cf15 self}.text = text\par
+        {\cf15 self}.status = status\par
+\par
+{\cf1 # Dialogue classes.}\par
+\par
+{\cf7\b class} {\cf24\b Dialogue}:\par
+\par
+    commands = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 KDE}{\cb3\cf2 "} : {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "},\par
+        {\cb3\cf2 "}{\cb3\cf2 GNOME}{\cb3\cf2 "} : {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "},\par
+        {\cb3\cf2 "}{\cb3\cf2 XFCE}{\cb3\cf2 "} : {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "}, {\cf1 # NOTE: Based on observations with Xubuntu.}\par
+        {\cb3\cf2 "}{\cb3\cf2 X11}{\cb3\cf2 "} : {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "}\par
+        \}\par
+\par
+    {\cf7\b def} {\cf21\b open}({\cf15 self}, desktop={\cf15 None}):\par
+\par
+        {\cb3\cf2 """\par
+        Open a dialogue box (dialog) using a program appropriate to the desktop\par
+        environment in use.\par
+\par
+        If the optional 'desktop' parameter is specified then attempt to use\par
+        that particular desktop environment's mechanisms to open the dialog\par
+        instead of guessing or detecting which environment is being used.\par
+\par
+        Suggested values for 'desktop' are "standard", "KDE", "GNOME",\par
+        "Mac OS X", "Windows".\par
+\par
+        The result of the dialogue interaction may be a string indicating user\par
+        input (for Input, Password, Menu, Pulldown), a list of strings\par
+        indicating selections of one or more items (for RadioList, CheckList),\par
+        or a value indicating true or false (for Question, Warning, Message,\par
+        Error).\par
+\par
+        Where a string value may be expected but no choice is made, an empty\par
+        string may be returned. Similarly, where a list of values is expected\par
+        but no choice is made, an empty list may be returned.\par
+        """}\par
+\par
+        {\cf1 # Decide on the desktop environment in use.}\par
+\par
+        desktop_in_use = use_desktop(desktop)\par
+\par
+        {\cf1 # Get the program.}\par
+\par
+        {\cf7\b try}:\par
+            program = {\cf15 self}.commands[desktop_in_use]\par
+        {\cf7\b except} {\cf24\b KeyError}:\par
+            {\cf7\b raise} {\cf24\b OSError}, {\cb3\cf2 "}{\cb3\cf2 Desktop }{\cb3\cf2 '}{\cb3\cf25 %s}{\cb3\cf2 '}{\cb3\cf2  not supported (no known dialogue box command could be suggested)}{\cb3\cf2 "} % desktop_in_use\par
+\par
+        {\cf1 # The handler is one of the functions communicating with the subprocess.}\par
+        {\cf1 # Some handlers return boolean values, others strings.}\par
+\par
+        handler, options = {\cf15 self}.info[program]\par
+\par
+        cmd = [program]\par
+        {\cf7\b for} option {\cf7 in} options:\par
+            {\cf7\b if} {\cf15 isinstance}(option, {\cf15 str}):\par
+                cmd.append(option)\par
+            {\cf7\b else}:\par
+                value = {\cf15 getattr}({\cf15 self}, option.name, {\cf15 None})\par
+                cmd += option.convert(value, program)\par
+\par
+        {\cf7\b return} handler(cmd, {\cf5\b 0})\par
+\par
+{\cf7\b class} {\cf24\b Simple}(Dialogue):\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, text, width={\cf15 None}, height={\cf15 None}):\par
+        {\cf15 self}.text = text\par
+        {\cf15 self}.width = width\par
+        {\cf15 self}.height = height\par
+\par
+{\cf7\b class} {\cf24\b Question}(Simple):\par
+\par
+    {\cb3\cf2 """\par
+    A dialogue asking a question and showing response buttons.\par
+    Options: text, width (in characters), height (in characters)\par
+    Response: a boolean value indicating an affirmative response (true) or a\par
+              negative response\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 question}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --yesno}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --question}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --yesno}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "})]),\par
+        \}\par
+\par
+{\cf7\b class} {\cf24\b Warning}(Simple):\par
+\par
+    {\cb3\cf2 """\par
+    A dialogue asking a question and showing response buttons.\par
+    Options: text, width (in characters), height (in characters)\par
+    Response: a boolean value indicating an affirmative response (true) or a\par
+              negative response\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 warning}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --warningyesno}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --warning}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --yesno}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "})]),\par
+        \}\par
+\par
+{\cf7\b class} {\cf24\b Message}(Simple):\par
+\par
+    {\cb3\cf2 """\par
+    A message dialogue.\par
+    Options: text, width (in characters), height (in characters)\par
+    Response: a boolean value indicating an affirmative response (true) or a\par
+              negative response\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 message}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --msgbox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --info}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --msgbox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "})]),\par
+        \}\par
+\par
+{\cf7\b class} {\cf24\b Error}(Simple):\par
+\par
+    {\cb3\cf2 """\par
+    An error dialogue.\par
+    Options: text, width (in characters), height (in characters)\par
+    Response: a boolean value indicating an affirmative response (true) or a\par
+              negative response\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 error}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --error}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --error}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_status, [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --msgbox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "})]),\par
+        \}\par
+\par
+{\cf7\b class} {\cf24\b Menu}(Simple):\par
+\par
+    {\cb3\cf2 """\par
+    A menu of options, one of which being selectable.\par
+    Options: text, width (in characters), height (in characters),\par
+             list_height (in items), items (MenuItem objects)\par
+    Response: a value corresponding to the chosen item\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 menu}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_readvalue(_readfrom), [{\cb3\cf2 "}{\cb3\cf2 --menu}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), MenuItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_readvalue(_readfrom), [{\cb3\cf2 "}{\cb3\cf2 --list}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), StringKeywords({\cb3\cf2 "}{\cb3\cf2 --column}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 titles}{\cb3\cf2 "}),\par
+            MenuItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]\par
+            ),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_readvalue(_readfrom), [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --menubox}{\cb3\cf2 "},\par
+            String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 list_height}{\cb3\cf2 "}), MenuItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]\par
+            ),\par
+        \}\par
+    item = MenuItem\par
+    number_of_titles = {\cf5\b 2}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, text, titles, items={\cf15 None}, width={\cf15 None}, height={\cf15 None}, list_height={\cf15 None}):\par
+\par
+        {\cb3\cf2 """\par
+        Initialise a menu with the given heading 'text', column 'titles', and\par
+        optional 'items' (which may be added later), 'width' (in characters),\par
+        'height' (in characters) and 'list_height' (in items).\par
+        """}\par
+\par
+        Simple.__init__({\cf15 self}, text, width, height)\par
+        {\cf15 self}.titles = ([{\cb3\cf2 "}{\cb3\cf2 "}] * {\cf15 self}.number_of_titles + titles)[-{\cf15 self}.number_of_titles:]\par
+        {\cf15 self}.items = items {\cf7 or} []\par
+        {\cf15 self}.list_height = list_height\par
+\par
+    {\cf7\b def} {\cf21\b add}({\cf15 self}, *args, **kw):\par
+\par
+        {\cb3\cf2 """\par
+        Add an item, passing the given arguments to the appropriate item class.\par
+        """}\par
+\par
+        {\cf15 self}.items.append({\cf15 self}.item(*args, **kw))\par
+\par
+{\cf7\b class} {\cf24\b RadioList}(Menu):\par
+\par
+    {\cb3\cf2 """\par
+    A list of radio buttons, one of which being selectable.\par
+    Options: text, width (in characters), height (in characters),\par
+             list_height (in items), items (MenuItem objects), titles\par
+    Response: a list of values corresponding to chosen items (since some\par
+              programs, eg. zenity, appear to support multiple default\par
+              selections)\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 radiolist}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_readvalues_kdialog(_readfrom), [{\cb3\cf2 "}{\cb3\cf2 --radiolist}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), ListItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_readvalues_zenity(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --list}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --radiolist}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), StringKeywords({\cb3\cf2 "}{\cb3\cf2 --column}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 titles}{\cb3\cf2 "}),\par
+            ListItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "}, {\cf5\b 1})]\par
+            ),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_readvalues_Xdialog(_readfrom), [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --radiolist}{\cb3\cf2 "},\par
+            String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 list_height}{\cb3\cf2 "}), ListItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]\par
+            ),\par
+        \}\par
+    number_of_titles = {\cf5\b 3}\par
+\par
+{\cf7\b class} {\cf24\b CheckList}(Menu):\par
+\par
+    {\cb3\cf2 """\par
+    A list of checkboxes, many being selectable.\par
+    Options: text, width (in characters), height (in characters),\par
+             list_height (in items), items (MenuItem objects), titles\par
+    Response: a list of values corresponding to chosen items\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 checklist}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_readvalues_kdialog(_readfrom), [{\cb3\cf2 "}{\cb3\cf2 --checklist}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), ListItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_readvalues_zenity(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --list}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --checklist}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), StringKeywords({\cb3\cf2 "}{\cb3\cf2 --column}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 titles}{\cb3\cf2 "}),\par
+            ListItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "}, {\cf5\b 1})]\par
+            ),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_readvalues_Xdialog(_readfrom), [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --checklist}{\cb3\cf2 "},\par
+            String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 list_height}{\cb3\cf2 "}), ListItemList({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]\par
+            ),\par
+        \}\par
+    number_of_titles = {\cf5\b 3}\par
+\par
+{\cf7\b class} {\cf24\b Pulldown}(Menu):\par
+\par
+    {\cb3\cf2 """\par
+    A pull-down menu of options, one of which being selectable.\par
+    Options: text, width (in characters), height (in characters),\par
+             items (list of values)\par
+    Response: a value corresponding to the chosen item\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 pulldown}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_readvalue(_readfrom), [{\cb3\cf2 "}{\cb3\cf2 --combobox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Strings({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_readvalue(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --list}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --radiolist}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), StringKeywords({\cb3\cf2 "}{\cb3\cf2 --column}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 titles}{\cb3\cf2 "}),\par
+            StringPairs({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]\par
+            ),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_readvalue(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --combobox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "}), Strings({\cb3\cf2 "}{\cb3\cf2 items}{\cb3\cf2 "})]),\par
+        \}\par
+    item = {\cf15 unicode}\par
+    number_of_titles = {\cf5\b 2}\par
+\par
+{\cf7\b class} {\cf24\b Input}(Simple):\par
+\par
+    {\cb3\cf2 """\par
+    An input dialogue, consisting of an input field.\par
+    Options: text, input, width (in characters), height (in characters)\par
+    Response: the text entered into the dialogue by the user\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 input}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_readinput(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --inputbox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), String({\cb3\cf2 "}{\cb3\cf2 data}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_readinput(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --entry}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), StringKeyword({\cb3\cf2 "}{\cb3\cf2 --entry-text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 data}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_readinput(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --inputbox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "}), String({\cb3\cf2 "}{\cb3\cf2 data}{\cb3\cf2 "})]),\par
+        \}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, text, data={\cb3\cf2 "}{\cb3\cf2 "}, width={\cf15 None}, height={\cf15 None}):\par
+        Simple.__init__({\cf15 self}, text, width, height)\par
+        {\cf15 self}.data = data\par
+\par
+{\cf7\b class} {\cf24\b Password}(Input):\par
+\par
+    {\cb3\cf2 """\par
+    A password dialogue, consisting of a password entry field.\par
+    Options: text, width (in characters), height (in characters)\par
+    Response: the text entered into the dialogue by the user\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 password}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_readinput(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --password}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_readinput(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --entry}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --text}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), {\cb3\cf2 "}{\cb3\cf2 --hide-text}{\cb3\cf2 "}]),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_readinput(_readfrom),\par
+            [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --password}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --inputbox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 text}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "})]),\par
+        \}\par
+\par
+{\cf7\b class} {\cf24\b TextFile}(Simple):\par
+\par
+    {\cb3\cf2 """\par
+    A text file input box.\par
+    Options: filename, text, width (in characters), height (in characters)\par
+    Response: any text returned by the dialogue program (typically an empty\par
+              string)\par
+    """}\par
+\par
+    name = {\cb3\cf2 "}{\cb3\cf2 textfile}{\cb3\cf2 "}\par
+    info = \{\par
+        {\cb3\cf2 "}{\cb3\cf2 kdialog}{\cb3\cf2 "} : (_readfrom, [{\cb3\cf2 "}{\cb3\cf2 --textbox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 filename}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "}, pixels={\cf5\b 1}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}, pixels={\cf5\b 1})]),\par
+        {\cb3\cf2 "}{\cb3\cf2 zenity}{\cb3\cf2 "} : (_readfrom, [{\cb3\cf2 "}{\cb3\cf2 --text-info}{\cb3\cf2 "}, StringKeyword({\cb3\cf2 "}{\cb3\cf2 --filename}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 filename}{\cb3\cf2 "}), IntegerKeyword({\cb3\cf2 "}{\cb3\cf2 --width}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "}, pixels={\cf5\b 1}),\par
+            IntegerKeyword({\cb3\cf2 "}{\cb3\cf2 --height}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}, pixels={\cf5\b 1})]\par
+            ),\par
+        {\cb3\cf2 "}{\cb3\cf2 Xdialog}{\cb3\cf2 "} : (_readfrom, [{\cb3\cf2 "}{\cb3\cf2 --stdout}{\cb3\cf2 "}, {\cb3\cf2 "}{\cb3\cf2 --textbox}{\cb3\cf2 "}, String({\cb3\cf2 "}{\cb3\cf2 filename}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 height}{\cb3\cf2 "}), Integer({\cb3\cf2 "}{\cb3\cf2 width}{\cb3\cf2 "})]),\par
+        \}\par
+\par
+    {\cf7\b def} {\cf21\b __init__}({\cf15 self}, filename, text={\cb3\cf2 "}{\cb3\cf2 "}, width={\cf15 None}, height={\cf15 None}):\par
+        Simple.__init__({\cf15 self}, text, width, height)\par
+        {\cf15 self}.filename = filename\par
+\par
+{\cf1 # Available dialogues.}\par
+\par
+available = [Question, {\cf24\b Warning}, Message, Error, Menu, CheckList, RadioList, Input, Password, Pulldown, TextFile]\par
+\par
+{\cf1 # Supported desktop environments.}\par
+\par
+supported = Dialogue.commands.keys()\par
+\par
+{\cf1 # vim: tabstop=4 expandtab shiftwidth=4}\par
+}

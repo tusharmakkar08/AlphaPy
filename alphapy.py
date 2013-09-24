@@ -14,24 +14,36 @@ class window:
 		self.window.set_border_width(1)
 		self.window.set_size_request(500,400)
 		hbox = gtk.HBox(False, 0)
-		button = gtk.Button("Save")
 		expand=False
 		fill=False
 		padding=0
+		
+		button = gtk.Button("Open")
+		button.connect("clicked",self.onopen)
+		hbox.pack_start(button, expand, fill, padding)
+    		button.show()
+		
+		button = gtk.Button("Save")
+		button.connect("clicked",self.onsave)
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()
+    		
 		button = gtk.Button("Cut")
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()
+		
 		button = gtk.Button("Copy")
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()
+    		
     		button = gtk.Button("Paste")
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()  
+    		
     		button = gtk.Button("Find")
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()    		
+		
 		self.button=gtk.Button("Quit")
 		self.button.connect("clicked",self.delete_event,None)
     		hbox.pack_start(self.button, expand, fill, padding)
@@ -39,10 +51,11 @@ class window:
 		
 		sw = gtk.ScrolledWindow()
 		sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		textview = gtk.TextView()
-		textbuffer = textview.get_buffer()
-		sw.add(textview)
-		textview.show()
+		self.textview = gtk.TextView()
+		self.textview.set_editable(True)
+		self.textbuffer = self.textview.get_buffer()
+		sw.add(self.textview)
+		self.textview.show()
 		sw.show()
 		
 		vbox=gtk.VBox(False,0)
@@ -56,6 +69,46 @@ class window:
 		vbox1.show()
 		vbox.show()
 		self.window.show()
+	def onsave(self,widget):
+		dialog = gtk.FileChooserDialog("Save..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+		dialog.set_default_response(gtk.RESPONSE_OK)
+		filter = gtk.FileFilter()
+		filter.set_name("All files")
+   		filter.add_pattern("*")
+ 		dialog.add_filter(filter)
+ 		response = dialog.run()
+   		if response == gtk.RESPONSE_OK:
+   			fl=dialog.get_filename()
+   			out=open(fl,"w")
+   			start, end = self.textbuffer.get_bounds()
+   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
+   			out.write(text)
+   			print "Save Succesful"
+   	   	elif response == gtk.RESPONSE_CANCEL:
+   		       print 'Closed, no files selected'
+   		dialog.destroy()
+		#print "saved"
+	def onopen(self,widget):
+		dialog = gtk.FileChooserDialog("Open..",
+                               None,
+                               gtk.FILE_CHOOSER_ACTION_OPEN,
+                               (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+		dialog.set_default_response(gtk.RESPONSE_OK)
+
+		filter = gtk.FileFilter()
+		filter.set_name("All files")
+		filter.add_pattern("*")
+		dialog.add_filter(filter)
+
+		response = dialog.run()
+		if response == gtk.RESPONSE_OK:
+		    fl= dialog.get_filename()
+		    self.textbuffer.set_text(open(fl,"r+").read())
+		elif response == gtk.RESPONSE_CANCEL:
+		    print 'Closed, no files selected'
+		dialog.destroy()
+	
 def main():
 	gtk.main()
 	return 0
