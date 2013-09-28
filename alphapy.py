@@ -7,7 +7,15 @@ import gtk
 class window:
 	def delete_event(self,widget,event,data=None):
 		"Quit window"
-		gtk.main_quit()
+		dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Save before quit ?")
+		dialog.set_title("WARNING ..")
+		response = dialog.run()
+		dialog.destroy()
+		if response == gtk.RESPONSE_YES:
+			self.onsave(self.window)
+		elif response == gtk.RESPONSE_NO:
+			gtk.main_quit()
+		else: return True
 		return False
 		
 	def __init__(self):
