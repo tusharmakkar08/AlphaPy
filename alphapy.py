@@ -14,7 +14,9 @@ class window:
 		"Initiate the window,button,etc .."
 		self.window=gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.window.set_resizable(True)
-		self.window.set_title("AlphaPy Text Editor")
+		self.title="AlphaPy Text Editor"
+		self.change=0
+		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(1)
 		self.window.set_size_request(800,700)
@@ -108,7 +110,9 @@ class window:
 		self.textbuffer = self.textview.get_buffer()
 		sw.add(self.textview)
 		self.textview.show()
-		sw.show()
+		sw.show()		
+		self.textbuffer.connect("changed",self.changetitle);
+		
 		
 		vbox=gtk.VBox(False,0)
 		vbox1=gtk.VBox(False,10)
@@ -117,6 +121,7 @@ class window:
         	vbox1.set_border_width(2)
         	vbox.pack_start(vbox1, True, True, 0)
         	self.status_bar = gtk.Statusbar()      
+        	self.textbuffer.connect("changed",self.changestbr);
    	        vbox.pack_start(self.status_bar, False, False, 0)
    	        self.status_bar.show()
 		self.window.add(vbox)
@@ -124,7 +129,16 @@ class window:
 		vbox1.show()
 		vbox.show()
 		self.window.show()
+
+	
+	def changetitle(self,widget):
+		if self.change==0:
+			self.title="**"+self.title
+			self.window.set_title(self.title)
+			self.change=1
 		
+	def changestbr(self,widget):
+		pass
 		
 		
 	def onsave(self,widget):
@@ -143,7 +157,9 @@ class window:
 	   			start, end = self.textbuffer.get_bounds()
 	   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
 	   			out.write(text)
-	   			self.window.set_title(self.file+" - AlphaPy Text Editor")
+	   			self.title=self.file+" - AlphaPy Text Editor"
+	   			self.window.set_title(self.title)
+	   			self.change=0
 	   			print "Save Succesful"
 	   	   	elif response == gtk.RESPONSE_CANCEL:
 	   		       print 'Closed, no files selected'
@@ -154,7 +170,9 @@ class window:
 	   		text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
 	   		out.write(text)
 	   		print "Save Succesful"
-	   		self.window.set_title(self.file+" - AlphaPy Text Editor")
+   			self.title=self.file+" - AlphaPy Text Editor"
+   			self.window.set_title(self.title)
+   			self.change=0
 	   		
 	
 	def saveas(self,widget):
@@ -172,7 +190,9 @@ class window:
 	   			start, end = self.textbuffer.get_bounds()
 	   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
 	   			out.write(text)
-	   			self.window.set_title(self.file+" - AlphaPy Text Editor")
+	   			self.title=self.file+" - AlphaPy Text Editor"
+	   			self.window.set_title(self.title)
+	   			self.change=0
 	   			print "Save Succesful"
 	   	   	elif response == gtk.RESPONSE_CANCEL:
 	   		       print 'Closed, no files selected'
@@ -198,7 +218,9 @@ class window:
 		if response == gtk.RESPONSE_OK:
 		    self.file= dialog.get_filename()
 		    self.textbuffer.set_text(open(self.file,"r+").read())
-		    self.window.set_title(self.file+" - AlphaPy Text Editor")
+		    self.title=self.file+" - AlphaPy Text Editor"
+		    self.window.set_title(self.title)
+		    self.change=0
 		elif response == gtk.RESPONSE_CANCEL:
 		    print 'Closed, no files selected'
 		dialog.destroy()
