@@ -105,7 +105,26 @@ class window:
 	   		
 		#print "saved"
 		
-		
+	def saveas(self,widget):
+			dialog = gtk.FileChooserDialog("Save..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+			dialog.set_default_response(gtk.RESPONSE_OK)
+			filter = gtk.FileFilter()
+			filter.set_name("All files")
+	   		filter.add_pattern("*")
+	 		dialog.add_filter(filter)
+	 		response = dialog.run()
+	   		if response == gtk.RESPONSE_OK:
+	   			self.file=dialog.get_filename()
+	   			out=open(self.file,"w")
+	   			start, end = self.textbuffer.get_bounds()
+	   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
+	   			out.write(text)
+	   			print "Save Succesful"
+	   	   	elif response == gtk.RESPONSE_CANCEL:
+	   		       print 'Closed, no files selected'
+	   		dialog.destroy()
+	
+	
 	def onopen(self,widget):
 		"To open a file and set the current file"
 		dialog = gtk.FileChooserDialog("Open..",
