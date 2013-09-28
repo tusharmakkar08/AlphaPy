@@ -138,6 +138,7 @@ class window:
 	   			start, end = self.textbuffer.get_bounds()
 	   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
 	   			out.write(text)
+	   			self.window.set_title(self.file+" - AlphaPy Text Editor")
 	   			print "Save Succesful"
 	   	   	elif response == gtk.RESPONSE_CANCEL:
 	   		       print 'Closed, no files selected'
@@ -148,6 +149,7 @@ class window:
 	   		text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
 	   		out.write(text)
 	   		print "Save Succesful"
+	   		self.window.set_title(self.file+" - AlphaPy Text Editor")
 	   		
 	
 	def saveas(self,widget):
@@ -165,6 +167,7 @@ class window:
 	   			start, end = self.textbuffer.get_bounds()
 	   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
 	   			out.write(text)
+	   			self.window.set_title(self.file+" - AlphaPy Text Editor")
 	   			print "Save Succesful"
 	   	   	elif response == gtk.RESPONSE_CANCEL:
 	   		       print 'Closed, no files selected'
@@ -190,6 +193,7 @@ class window:
 		if response == gtk.RESPONSE_OK:
 		    self.file= dialog.get_filename()
 		    self.textbuffer.set_text(open(self.file,"r+").read())
+		    self.window.set_title(self.file+" - AlphaPy Text Editor")
 		elif response == gtk.RESPONSE_CANCEL:
 		    print 'Closed, no files selected'
 		dialog.destroy()
