@@ -1,4 +1,5 @@
 #!/usr/local/bin/python
+
 import pygtk
 pygtk.require('2.0')
 import gtk
@@ -16,7 +17,7 @@ class window:
 		self.window.set_title("AlphaPy Text Editor")
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(1)
-		self.window.set_size_request(600,500)
+		self.window.set_size_request(800,700)
 		hbox = gtk.HBox(False, 0)
 		expand=False
 		fill=False
@@ -115,6 +116,9 @@ class window:
         	vbox1.pack_start(sw)
         	vbox1.set_border_width(2)
         	vbox.pack_start(vbox1, True, True, 0)
+        	self.status_bar = gtk.Statusbar()      
+   	        vbox.pack_start(self.status_bar, False, False, 0)
+   	        self.status_bar.show()
 		self.window.add(vbox)
 		hbox.show()
 		vbox1.show()
