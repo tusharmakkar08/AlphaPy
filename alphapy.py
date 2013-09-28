@@ -71,6 +71,7 @@ class window:
 		button = gtk.Button()
 		self.tooltips.set_tip(button, "Cut")
 		button.add(image)
+		button.connect("clicked",self.cut)
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()
 		
@@ -80,6 +81,7 @@ class window:
 		button = gtk.Button()
 		self.tooltips.set_tip(button, "Copy")
 		button.add(image)
+		button.connect("clicked",self.copy)
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()
     		
@@ -89,6 +91,7 @@ class window:
 		button = gtk.Button()
 		self.tooltips.set_tip(button, "Paste")
 		button.add(image)
+		button.connect("clicked",self.paste)
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()  
     		
@@ -118,7 +121,8 @@ class window:
 		self.textbuffer = self.textview.get_buffer()
 		sw.add(self.textview)
 		self.textview.show()
-		sw.show()		
+		sw.show()
+		self.clipboard=gtk.Clipboard()		
 		self.textbuffer.connect("changed",self.changetitle);
 		
 		
@@ -138,14 +142,26 @@ class window:
 		vbox.show()
 		self.window.show()
 
+	def cut(self,widget):
+		self.textbuffer.cut_clipboard(self.clipboard, True)
+	
+	def copy(self,widget):
+		self.textbuffer.copy_clipboard(self.clipboard)
+	
+	def paste(self,widget):
+		self.textbuffer.paste_clipboard(self.clipboard,None, True)
+	
 	
 	def changetitle(self,widget):
+		"Change Title when file is temporary"
 		if self.change==0:
 			self.title="**"+self.title
 			self.window.set_title(self.title)
 			self.change=1
 		
 	def changestbr(self,widget):
+		"Change statusbar values"
+		print self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line(),self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line_index()
 		pass
 		
 		
