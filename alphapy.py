@@ -32,6 +32,11 @@ class window:
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()
     		
+    		button = gtk.Button("Save as..")
+		button.connect("clicked",self.saveas)
+    		hbox.pack_start(button, expand, fill, padding)
+    		button.show()
+    		
 		button = gtk.Button("Cut")
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()
@@ -79,7 +84,7 @@ class window:
 	def onsave(self,widget):
 		"To save a file and set th file parameter if it is a new file or just overwrite"
 		if self.file=="":
-			dialog = gtk.FileChooserDialog("Save..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+			dialog = gtk.FileChooserDialog("Save..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
 			dialog.set_default_response(gtk.RESPONSE_OK)
 			filter = gtk.FileFilter()
 			filter.set_name("All files")
@@ -103,10 +108,10 @@ class window:
 	   		out.write(text)
 	   		print "Save Succesful"
 	   		
-		#print "saved"
-		
+	
 	def saveas(self,widget):
-			dialog = gtk.FileChooserDialog("Save..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+			"Save the file with a different name"
+			dialog = gtk.FileChooserDialog("Save as..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
 			dialog.set_default_response(gtk.RESPONSE_OK)
 			filter = gtk.FileFilter()
 			filter.set_name("All files")
@@ -124,7 +129,8 @@ class window:
 	   		       print 'Closed, no files selected'
 	   		dialog.destroy()
 	
-	
+		
+		
 	def onopen(self,widget):
 		"To open a file and set the current file"
 		dialog = gtk.FileChooserDialog("Open..",
