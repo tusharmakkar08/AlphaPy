@@ -4,9 +4,12 @@ import gtk
 
 class window:
 	def delete_event(self,widget,event,data=None):
+		"Quit window"
 		gtk.main_quit()
 		return False
+		
 	def __init__(self):
+		"Initiate the window,button,etc .."
 		self.window=gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.window.set_resizable(True)
 		self.window.set_title("AlphaPy Text Editor")
@@ -17,6 +20,7 @@ class window:
 		expand=False
 		fill=False
 		padding=0
+		self.file=""
 		
 		button = gtk.Button("Open")
 		button.connect("clicked",self.onopen)
@@ -69,26 +73,41 @@ class window:
 		vbox1.show()
 		vbox.show()
 		self.window.show()
+		
+		
+		
 	def onsave(self,widget):
-		dialog = gtk.FileChooserDialog("Save..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
-		dialog.set_default_response(gtk.RESPONSE_OK)
-		filter = gtk.FileFilter()
-		filter.set_name("All files")
-   		filter.add_pattern("*")
- 		dialog.add_filter(filter)
- 		response = dialog.run()
-   		if response == gtk.RESPONSE_OK:
-   			fl=dialog.get_filename()
-   			out=open(fl,"w")
-   			start, end = self.textbuffer.get_bounds()
-   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
-   			out.write(text)
-   			print "Save Succesful"
-   	   	elif response == gtk.RESPONSE_CANCEL:
-   		       print 'Closed, no files selected'
-   		dialog.destroy()
+		"To save a file and set th file parameter if it is a new file or just overwrite"
+		if self.file=="":
+			dialog = gtk.FileChooserDialog("Save..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+			dialog.set_default_response(gtk.RESPONSE_OK)
+			filter = gtk.FileFilter()
+			filter.set_name("All files")
+	   		filter.add_pattern("*")
+	 		dialog.add_filter(filter)
+	 		response = dialog.run()
+	   		if response == gtk.RESPONSE_OK:
+	   			self.file=dialog.get_filename()
+	   			out=open(self.file,"w")
+	   			start, end = self.textbuffer.get_bounds()
+	   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
+	   			out.write(text)
+	   			print "Save Succesful"
+	   	   	elif response == gtk.RESPONSE_CANCEL:
+	   		       print 'Closed, no files selected'
+	   		dialog.destroy()
+	   	else:
+	   		out=open(self.file,"w")
+	   		start, end = self.textbuffer.get_bounds()
+	   		text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
+	   		out.write(text)
+	   		print "Save Succesful"
+	   		
 		#print "saved"
+		
+		
 	def onopen(self,widget):
+		"To open a file and set the current file"
 		dialog = gtk.FileChooserDialog("Open..",
                                None,
                                gtk.FILE_CHOOSER_ACTION_OPEN,
@@ -103,8 +122,8 @@ class window:
 
 		response = dialog.run()
 		if response == gtk.RESPONSE_OK:
-		    fl= dialog.get_filename()
-		    self.textbuffer.set_text(open(fl,"r+").read())
+		    self.file= dialog.get_filename()
+		    self.textbuffer.set_text(open(self.file,"r+").read())
 		elif response == gtk.RESPONSE_CANCEL:
 		    print 'Closed, no files selected'
 		dialog.destroy()
