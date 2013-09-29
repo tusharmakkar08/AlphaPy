@@ -18,7 +18,7 @@ case ${var[1]} in
 	"sh") sh "${var[0]}" "${var[2]}"; ret=$? ;;
 	"rb") ruby "${var[0]}" "${var[2]}"; ret=$? ;;
 	"R") R CMD BATCH "${var[0]}" "${var[2]}"; ret=$? ;;
-	
+	*) echo "Language unsopperted by the editor";;
 esac
 echo "-----------------------------------------------------------------"
 echo "Program exited with return code : $ret"

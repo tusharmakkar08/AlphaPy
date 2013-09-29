@@ -32,7 +32,7 @@ def compile(in_file,  ext = '', out_file='compile.log'):			#in_file-> source cod
 		cmd = 'javac -d ' + '"' + path + '" "' + in_file +'"'
 		
 	lang = ext
-	#print cmd
+
 	if cmd == '':
 		print 'The language of the source code is not supported by this editor'
 	
