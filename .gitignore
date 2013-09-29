@@ -40,3 +40,4 @@ nosetests.xml
 *.html
 *.tex
 *.pyc
+big.txt
