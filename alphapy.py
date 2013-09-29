@@ -137,9 +137,10 @@ class window:
         	vbox1.set_border_width(2)
         	vbox.pack_start(vbox1, True, True, 0)
         	self.status_bar = gtk.Statusbar()      
-        	self.textbuffer.connect("changed",self.changestbr);
+        	self.textbuffer.connect("notify::cursor-position",self.changestbr);
    	        vbox.pack_start(self.status_bar, False, False, 0)
    	        self.status_bar.show()
+   	        self.context_id = self.status_bar.get_context_id("Statusbar example")
 		self.window.add(vbox)
 		hbox.show()
 		vbox1.show()
@@ -163,10 +164,24 @@ class window:
 			self.window.set_title(self.title)
 			self.change=1
 		
-	def changestbr(self,widget):
+	def changestbr(self,widget,data=None):
 		"Change statusbar values"
-		print self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line(),self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line_index()
-		pass
+		cl= 1+self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line()
+		col=self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line_index()
+		ln=self.textbuffer.get_line_count()
+		ch=self.textbuffer.get_char_count()
+		selln=0
+		selch=0
+		if self.textbuffer.get_selection_bounds()!=():
+			st,end=self.textbuffer.get_selection_bounds()
+			selln=end.get_line()-st.get_line()+1
+			selch=end.get_offset()-st.get_offset()
+		data="\t\tline : "+str(cl)+"  col : "+str(col)+"\t\tlines : "+str(ln)+" chars : "+str(ch)+"\tSel : "+str(selln)+" | "+str(selch)
+		if self.file=="":
+			text="New file"+data
+		else:
+			text=self.file+data
+		self.status_bar.push(self.context_id, text)
 		
 		
 	def onsave(self,widget):
