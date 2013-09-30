@@ -3,9 +3,9 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
-import search
+#import wx
 
-class window:
+class window():
 	
 	def search_dialog(self,widget,data=None):
 		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
@@ -60,14 +60,34 @@ class window:
 		
 	def __init__(self):
 		"Initiate the window,button,etc .."
+		self.undo_max = 100	
+		self._highlight_strings = []
+		self.undos = []
+		self.redos = []
 		self.window=gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.window.set_resizable(True)
 		self.title="AlphaPy Text Editor"
 		self.change=0
+		self.window.set_size_request(800,700)
 		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(1)
-		self.window.set_size_request(800,700)
+		#~ open_1=wx.NewId()
+		#~ save_1=wx.NewId()
+		#~ undo_1=wx.NewId()
+		#~ redo_1=wx.NewId()
+		#~ find_1=wx.NewId()
+		#~ self.Bind(wx.EVT_MENU,self.onopen,id=open_1)
+		#~ self.Bind(wx.EVT_MENU,self.onsave,id=save_1)
+		#~ self.Bind(wx.EVT_MENU,self.undo,id=undo_1)
+		#~ self.Bind(wx.EVT_MENU,self.redo,id=redo_1)
+		#~ self.Bind(wx.EVT_MENU,self.search_dialog,id=find_1)
+		#~ self.accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord('O'), open_1),
+		#~ (wx.ACCEL_CTRL, ord('S'), save_1),
+		#~ (wx.ACCEL_CTRL, ord('F'), find_1),
+		#~ (wx.ACCEL_CTRL, ord('Z'), undo_1),
+		#~ (wx.ACCEL_CTRL, ord('Y'), redo_1)])                                          
+		#~ self.SetAcceleratorTable(self.accel_tbl)
 		hbox = gtk.HBox(False, 0)
 		expand=False
 		fill=False
@@ -105,6 +125,26 @@ class window:
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()
     		
+		image = gtk.Image()
+   	        image.set_from_file("icons/undo.png")
+   	        image.show()
+		button = gtk.Button()
+		self.tooltips.set_tip(button, "Undo")
+		button.add(image)
+		button.connect("clicked",self.undo)
+		hbox.pack_start(button, expand, fill, padding)
+    		button.show()
+
+		image = gtk.Image()
+   	        image.set_from_file("icons/redo.png")
+   	        image.show()
+		button = gtk.Button()
+		self.tooltips.set_tip(button, "Redo")
+		button.add(image)
+		button.connect("clicked",self.redo)
+		hbox.pack_start(button, expand, fill, padding)
+    		button.show()
+
 		image = gtk.Image()
    	        image.set_from_file("icons/cut.png")
    	        image.show()
@@ -160,6 +200,10 @@ class window:
 		self.textview = gtk.TextView()
 		self.textview.set_editable(True)
 		self.textbuffer = self.textview.get_buffer()
+		self.insert_event = self.textview.get_buffer().connect("insert-text",self._on_insert)
+	        self.delete_event = self.textview.get_buffer().connect("delete-range",self._on_delete)
+	        self.change_event = self.textview.get_buffer().connect("changed",self._on_text_changed)
+
 		sw.add(self.textview)
 		self.textview.show()
 		sw.show()
@@ -221,6 +265,85 @@ class window:
 		self.status_bar.push(self.context_id, text)
 		
 		
+	def undo(self,widget):
+		if len(self.undos) == 0:
+			print "length is "+ str(len(self.undos))
+		        return
+		print "length is "+str(len(self.undos))
+	        self.textview.get_buffer().disconnect(self.delete_event)
+	        self.textview.get_buffer().disconnect(self.insert_event)
+
+	        undo = self.undos[-1]
+	        redo = self._do_action(undo)
+	        self.redos.append(redo)
+	        del(self.undos[-1])
+	
+	        self.insert_event = self.textview.get_buffer().connect("insert-text",self._on_insert)
+	        self.delete_event = self.textview.get_buffer().connect("delete-range",self._on_delete)
+        
+	def _do_action(self, action):
+	        if action["action"] == "delete":
+			start_iter = self.textview.get_buffer().get_iter_at_offset(action["offset"])
+			end_iter =  self.textview.get_buffer().get_iter_at_offset(action["offset"] + len(action["text"]))
+			self.textview.get_buffer().delete(start_iter, end_iter)
+			action["action"] = "insert"
+		
+		elif action["action"] == "insert":
+			start_iter = self.textview.get_buffer().get_iter_at_offset(action["offset"])
+			self.textview.get_buffer().insert(start_iter, action["text"])
+			action["action"] = "delete"
+
+		return action
+	
+	def redo(self,widget):
+		if len(self.redos) == 0:
+			return
+			
+		self.textview.get_buffer().disconnect(self.delete_event)
+		self.textview.get_buffer().disconnect(self.insert_event)
+		
+		redo = self.redos[-1]
+		undo = self._do_action(redo)
+		self.undos.append(undo)
+		del(self.redos[-1])
+
+		self.insert_event = self.textview.get_buffer().connect("insert-text",self._on_insert)
+		self.delete_event = self.textview.get_buffer().connect("delete-range",self._on_delete)
+
+	def _on_text_changed(self, buff):
+		self.textview.get_buffer().disconnect(self.change_event)
+		self.change_event = self.textview.get_buffer().connect("changed",self._on_text_changed)
+
+	def _on_insert(self, text_buffer, iter, text, length, data=None):	
+                print "inserting\n"
+		cmd = {"action":"delete","offset":iter.get_offset(),"text":text}
+
+		self._add_undo(cmd)
+		self.redos = []
+		if text == "\n": 
+			cur_line = iter.get_line()
+			prev_line_iter = self.textview.get_buffer().get_iter_at_line(cur_line)
+			pl_offset = prev_line_iter.get_offset()
+			pl_text = self.textview.get_buffer().get_text(prev_line_iter, iter, False)
+			if pl_text.strip().find("*") == 0:
+				ws = ""
+				if not pl_text.startswith("*"):
+					ws = (pl_text.split("*")[0])
+
+	def _on_delete(self, text_buffer, start_iter, end_iter, data=None):
+                print "deleting\n"
+		text = self.textview.get_buffer().get_text(start_iter,end_iter, False)        
+		cmd = {"action":"insert","offset":start_iter.get_offset(),"text":text}
+		self._add_undo(cmd)
+
+	def _add_undo(self, cmd):
+		#delete the oldest undo if undo maximum is in effect
+                print "adding to undo list\n"
+		if self.undo_max is not None and len(self.undos) >= self.undo_max:
+			del(self.undos[0])
+		self.undos.append(cmd)		
+
+	
 	def onsave(self,widget):
 		"To save a file and set th file parameter if it is a new file or just overwrite"
 		if self.file=="":
