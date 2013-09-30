@@ -61,6 +61,9 @@ def execute(obj_file,args = '',lang = '' ,args_file = '.args'): 	#Execute the ob
 		print >> f, args
 		os.system("gnome-terminal -e 'bash -c \"bash run_script.sh " + args_file + "\"'") 	# FIND A BETTER WAY TO INCLUDE ALL THE ARGS IN THIS COMMAND, AND NOT USING A TEMP FILE 
 	
+	else:
+		print 'Compilation errors, check the log file'
+
 def main():
 	file1 = os.environ['HOME'] + '/workspace/ADSAProject2/src/dataStructures/Trie.java'
 	file2 = os.environ['HOME'] + '/Documents/ebooks/Comp/5th sem/OS Lab/Lab/cat.c'
@@ -77,7 +80,7 @@ def main():
 	#~ ret_code, obj_file, lang = compile(file3)
 	#~ 
 	#~ if ret_code == 0:
-	execute(r_file,arg2)
+	execute(file2,arg2)
 	
 	#print 'complete'
 	

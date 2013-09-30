@@ -3,8 +3,44 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
+import search
 
 class window:
+	
+	def search_dialog(self,widget,data=None):
+		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
+		
+		dialog.set_size_request(300,100)
+		
+		hbox1 = gtk.HBox(False,0)
+		hbox2 = gtk.HBox(False,0)
+		
+		label = gtk.Label("Enter String")
+		hbox1.pack_start(label)
+		label.show()
+		
+		self.entry= gtk.Entry()
+		hbox1.pack_start(self.entry)
+		self.entry.show()
+		
+		button = gtk.Button('Find Next')
+		button.connect('clicked', self.find_next)
+		button.show()
+		hbox2.pack_start(button)
+		
+		#~ button = gtk.Button('Find Previous')
+		#~ #button.connect('clicked', self.find_prev)
+		#~ button.show()
+		#~ hbox2.pack_start(button)
+		
+		hbox1.show()
+		hbox2.show()
+		dialog.vbox.pack_start(hbox1, gtk.TRUE, gtk.TRUE, 0)
+		dialog.vbox.pack_start(hbox2, gtk.TRUE, gtk.TRUE, 0)
+		
+		response = dialog.run()
+		dialog.destroy()	
+		
 	def delete_event(self,widget,event,data=None):
 		"Quit window"
 		if self.change:
@@ -105,6 +141,7 @@ class window:
 		button = gtk.Button()
 		self.tooltips.set_tip(button, "Find")
 		button.add(image)
+		button.connect("clicked", self.search_dialog)			#Set Handler for searching.
     		hbox.pack_start(button, expand, fill, padding)
     		button.show()    		
 		
@@ -267,6 +304,39 @@ class window:
 		elif response == gtk.RESPONSE_CANCEL:
 		    print 'Closed, no files selected'
 		dialog.destroy()
+		
+	def find_next(self,widget, data=None):
+		
+		iput = self.entry.get_text()
+		print '\n' + iput
+		if iput == '':
+			print 'Invalid search input'
+		else:
+			startiter = self.textbuffer.get_start_iter()
+			
+			if type(startiter) is None:
+				print 'Input file is empty'
+			
+			else:
+				try:
+					match_start, match_end = startiter.forward_search(iput, gtk.TEXT_SEARCH_TEXT_ONLY)
+				except:
+					print 'String not found'
+					return 
+					
+				if type(match_start) is not None and type(match_end) is not None:
+					
+					line_start = match_start.get_line() + 1
+					line_end = match_end.get_line() + 1
+					line_start_offset = match_start.get_line_index()
+					line_end_offset = match_end.get_line_index()
+					
+					print 'start_offset:' + str(match_start.get_offset()) + ' end_offset:' + str(match_end.get_offset())
+					print 'line_start:' + str(line_start) + ' line_end:' + str(line_end)
+					print 'line_start_offset:' + str(line_start_offset) + ' line_end_offset:' + str(line_end_offset)
+				
+				else:
+					print 'String not found'
 	
 def main():
 	gtk.main()

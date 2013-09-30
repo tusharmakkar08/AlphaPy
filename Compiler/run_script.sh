@@ -8,7 +8,7 @@ while read line; do
 	i=$(( i + 1 ))
 done < $args_file
 
-echo ${var[2]}
+#~ echo ${var[2]}
 
 case ${var[1]} in
 	"c") "${var[0]}" "${var[2]}" ; ret=$? ;;
