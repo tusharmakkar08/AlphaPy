@@ -1,12 +1,12 @@
 Features implemented
 
--Sayan:- Basic text editor (Save, Save as, cut ,copy, paste),basic gui
+-Sayan:- Basic text editor (Save, Save as,basic gui)
 
 -Makkar:- Pygments, File conversion to rtf and html
 
 -Siddhu:- Compiler, Execution Environment, Searching
 
--Faf:- Undo, Redo, Keyboard Shortcuts
+-Faf:- Undo, Redo, cut ,copy, paste
 
 Features to be implemented
 
@@ -14,7 +14,7 @@ Features to be implemented
 
 -Makkar:- Spell-Checker
 
--Siddhu:- Dialog box section
+-Siddhu:- Dialog box section, Replace, Preferences, Auto-Indentation or Comment formatting
 
--Faf:- 
+-Faf:- Keybooard Shortcuts, Line Wrapping
 
