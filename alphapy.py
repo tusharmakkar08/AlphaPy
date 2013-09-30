@@ -2,7 +2,7 @@
 
 import pygtk
 pygtk.require('2.0')
-import gtk
+import gtk,vte
 #import wx
 
 class window():
@@ -94,6 +94,16 @@ class window():
 		padding=2
 		self.file=""
 		self.tooltips = gtk.Tooltips()
+		
+		image = gtk.Image()
+   	        image.set_from_file("icons/new.png")
+   	        image.show()
+		button = gtk.Button()
+		self.tooltips.set_tip(button, "New file")
+		button.add(image)
+		button.connect("clicked",self.new)
+		hbox.pack_start(button, expand, fill, padding)
+    		button.show()
 		
 		image = gtk.Image()
    	        image.set_from_file("icons/open.png")
@@ -217,11 +227,23 @@ class window():
         	vbox1.pack_start(sw)
         	vbox1.set_border_width(2)
         	vbox.pack_start(vbox1, True, True, 0)
+        	
+        	term  = vte.Terminal()
+		pid   = term.fork_command('bash')
+		term.set_emulation('xterm')
+		term.set_size_request(800,150)
+		term.show()
+		vtb=gtk.VBox(False,0)
+		vtb.pack_start(term, False, False, 0)
+		vbox.pack_start(vtb, False, False, 4)
+		vtb.show()
+        	
         	self.status_bar = gtk.Statusbar()      
         	self.textbuffer.connect("notify::cursor-position",self.changestbr);
    	        vbox.pack_start(self.status_bar, False, False, 0)
    	        self.status_bar.show()
    	        self.context_id = self.status_bar.get_context_id("Statusbar example")
+   	        self.changestbr(self.window)
 		self.window.add(vbox)
 		hbox.show()
 		vbox1.show()
@@ -401,10 +423,31 @@ class window():
 	   		       print 'Closed, no files selected'
 	   		dialog.destroy()
 	
+	def new(self,widget):
+		"To open a new file and save the current file"
+		if self.change:
+			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Save before openig new file ?")
+			dialog.set_title("WARNING ..")
+			response = dialog.run()
+			dialog.destroy()
+			if response == gtk.RESPONSE_YES:
+				self.onsave(self.window)
+		self.textbuffer.set_text("")
+		self.file=""
+		self.change=0
+		self.title="AlphaPy Text Editor"
+	   	self.window.set_title(self.title)
 		
 		
 	def onopen(self,widget):
 		"To open a file and set the current file"
+		if self.change:
+			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Save before opening new file ?")
+			dialog.set_title("WARNING ..")
+			response = dialog.run()
+			dialog.destroy()
+			if response == gtk.RESPONSE_YES:
+				self.onsave(self.window)
 		dialog = gtk.FileChooserDialog("Open..",
                                None,
                                gtk.FILE_CHOOSER_ACTION_OPEN,
