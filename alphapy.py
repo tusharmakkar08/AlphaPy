@@ -58,14 +58,35 @@ class window():
 			gtk.main_quit()
 			return False
 	
-	def buttn(self,icon,func,tip,expand, fill, padding):
+	def buttn(self,icon,func,tip,expand, fill, padding,text=""):
 		"creates buttons"
+		hbox=gtk.HBox(False,0)
 		image = gtk.Image()
    	        image.set_from_file(icon)
    	        image.show()
+   	        hbox.add(image)
+   	        lbl=gtk.Label(text)
+   	        lbl.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FFFFFF'))
+   	        lbl.modify_fg(gtk.STATE_ACTIVE, gtk.gdk.color_parse('#FFFFFF'))
+   	        lbl.modify_fg(gtk.STATE_PRELIGHT, gtk.gdk.color_parse('#FFFFFF'))
+   	        lbl.show()
+   	        hbox.add(lbl)
 		button = gtk.Button()
+		map = button.get_colormap() 
+		color = map.alloc_color("#4D4D4D")
+
+		#copy the current style and replace the background
+		style = button.get_style().copy()
+		style.bg[gtk.STATE_NORMAL] = color
+		style.bg[gtk.STATE_ACTIVE] = color
+		style.bg[gtk.STATE_PRELIGHT] = color
+		button.props.relief = gtk.RELIEF_NONE
+
+		#set the button's style to the one you created
+		button.set_style(style)
 		self.tooltips.set_tip(button, tip)
-		button.add(image)
+		button.add(hbox)
+		hbox.show()
 		button.connect("clicked",func)
 		self.hbox.pack_start(button, expand, fill, padding)
     		button.show()
@@ -83,7 +104,7 @@ class window():
 		self.window.set_size_request(1000,700)
 		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
-		self.window.set_border_width(1)
+		self.window.set_border_width(0)
 		#~ open_1=wx.NewId()
 		#~ save_1=wx.NewId()
 		#~ undo_1=wx.NewId()
@@ -186,10 +207,10 @@ class window():
 		
 		
 		self.buttn("icons/new.png",self.new,"New file",expand, fill, padding)
-		self.buttn("icons/open.png",self.onopen,"Open file",expand, fill, padding)
-		self.buttn("icons/save.png",self.onsave,"Save file",expand, fill, padding)
+		self.buttn("icons/open.png",self.onopen,"Open file",expand, fill, padding," Open")
+		self.buttn("icons/save.png",self.onsave,"Save file",expand, fill, padding," Save")
 		self.buttn("icons/save as.png",self.saveas,"Save as..",expand, fill, padding)
-		self.buttn("icons/undo.png",self.undo,"Undo",expand, fill, padding)
+		self.buttn("icons/undo.png",self.undo,"Undo",expand, fill, padding," Undo")
 		self.buttn("icons/redo.png",self.redo,"Redo",expand, fill, padding)
 		self.buttn("icons/cut.png",self.cut,"Cut",expand, fill, padding)
 		self.buttn("icons/copy.png",self.copy,"Copy",expand, fill, padding)
@@ -217,7 +238,10 @@ class window():
 		vbox1=gtk.VBox(False,10)
 		
         	vbox.pack_start(menu_bar, False, False, 0)
-		vbox.pack_start(self.hbox, False, False, 0)
+        	eb = gtk.EventBox()     
+		eb.add(self.hbox)
+		eb.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#4D4D4D"))
+		vbox.pack_start(eb, False, False, 0)
         	vbox1.pack_start(sw)
         	vbox1.set_border_width(2)
         	vbox.pack_start(vbox1, True, True, 0)
@@ -246,6 +270,7 @@ class window():
    	        self.changestbr(self.window)
 		self.window.add(vbox)
 		self.hbox.show()
+		eb.show()
 		vbox1.show()
 		vbox.show()
 		
