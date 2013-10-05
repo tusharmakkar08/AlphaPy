@@ -68,7 +68,7 @@ class window():
 		self.window.set_resizable(True)
 		self.title="AlphaPy Text Editor"
 		self.change=0
-		self.window.set_size_request(800,700)
+		self.window.set_size_request(1000,700)
 		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(1)
@@ -228,14 +228,20 @@ class window():
         	vbox1.set_border_width(2)
         	vbox.pack_start(vbox1, True, True, 0)
         	
-        	term  = vte.Terminal()
-		pid   = term.fork_command('bash')
+        	
+		misc=gtk.Notebook()
+		misc.set_tab_pos(gtk.POS_LEFT);
+		term  = vte.Terminal();
+		pid   = term.fork_command('bash');
 		term.set_emulation('xterm')
 		term.set_size_request(800,150)
 		term.show()
 		vtb=gtk.VBox(False,0)
 		vtb.pack_start(term, False, False, 0)
-		vbox.pack_start(vtb, False, False, 4)
+		ter_lbl=gtk.Label("Terminal")
+		misc.append_page(vtb,ter_lbl)	
+		misc.show()
+		vbox.pack_start(misc, False, False, 4)
 		vtb.show()
         	
         	self.status_bar = gtk.Statusbar()      
@@ -511,3 +517,4 @@ def main():
 if __name__=="__main__":
 	window()
 	main()
+
