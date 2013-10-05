@@ -41,7 +41,7 @@ class window():
 		response = dialog.run()
 		dialog.destroy()	
 		
-	def delete_event(self,widget,event,data=None):
+	def delete_event(self,widget=None,event=None,data=None):
 		"Quit window"
 		if self.change:
 			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Save before quit ?")
@@ -95,6 +95,85 @@ class window():
 		self.file=""
 		self.tooltips = gtk.Tooltips()
 		
+		file_menu = gtk.Menu() 
+		# Create the menu items
+		
+		new_item = gtk.MenuItem("New\t\t\tCTRL+N")
+		open_item = gtk.MenuItem("Open\t\t\tCTRL+O")
+		save_item = gtk.MenuItem("Save\t\t\tCTRL+S")
+		saveas_item = gtk.MenuItem("Save as..\t\tCTRL+SHIFT+S")
+		quit_item = gtk.MenuItem("Quit\t\t\tCTRL+Q")
+		# Add them to the menu
+		file_menu.append(new_item)
+		file_menu.append(open_item)
+		file_menu.append(saveas_item)
+		file_menu.append(save_item)
+		file_menu.append(quit_item)
+		# Attach the callback functions to the activate signal
+		new_item.connect_object("activate", self.new, "file.new")
+		open_item.connect_object("activate", self.onopen, "file.open")
+		save_item.connect_object("activate", self.onsave, "file.save")
+		saveas_item.connect_object("activate", self.saveas, "file.saveas")
+		quit_item.connect_object ("activate", self.delete_event, "file.quit")
+		# We do need to show menu items
+		new_item.show()
+		open_item.show()
+		save_item.show()
+		saveas_item.show()
+		quit_item.show()
+		file_menu.show()
+		
+		edit_menu=gtk.Menu()
+		cut_item = gtk.MenuItem("Cut\t\t\tCTRL+X")
+		copy_item = gtk.MenuItem("Copy\t\t\tCTRL+C")
+		paste_item = gtk.MenuItem("Paste\t\t\tCTRL+V")
+		undo_item = gtk.MenuItem("Undo\t\t\tCTRL+Z")
+		redo_item = gtk.MenuItem("Redo\t\t\tCTRL+Y")
+		delete_item = gtk.MenuItem("Delete\t\t\tDEL")
+		find_item = gtk.MenuItem("Find\t\t\tCTRL+F")
+		
+		cut_item.connect_object("activate", self.cut, "edit.cut")
+		copy_item.connect_object("activate", self.copy, "edit.copy")
+		paste_item.connect_object("activate", self.paste, "edit.paste")
+		delete_item.connect_object("activate", self.cut, "edit.delete")
+		undo_item.connect_object("activate", self.undo, "edit.undo")
+		redo_item.connect_object("activate", self.redo, "edit.redo")
+		find_item.connect_object("activate", self.search_dialog, "edit.find")
+		
+		edit_menu.append(cut_item)
+		edit_menu.append(copy_item)
+		edit_menu.append(paste_item)
+		edit_menu.append(undo_item)
+		edit_menu.append(redo_item)
+		edit_menu.append(find_item)
+		edit_menu.append(delete_item)
+		
+		cut_item.show()
+		copy_item.show()
+		paste_item.show()
+		undo_item.show()
+		redo_item.show()
+		delete_item.show()
+		find_item.show()
+		edit_menu.show()
+		
+		
+		menu_bar = gtk.MenuBar()
+		file_item = gtk.MenuItem("File")
+		edit_item = gtk.MenuItem("Edit")
+		file_item.show()
+		edit_item.show()
+		file_item.set_submenu(file_menu)
+		edit_item.set_submenu(edit_menu)
+		menu_bar.append(file_item)
+		menu_bar.append(edit_item)
+		file_item.set_right_justified(True)
+		edit_item.set_right_justified(True)
+		
+		menu_bar.show()
+		
+		
+				
 		image = gtk.Image()
    	        image.set_from_file("icons/new.png")
    	        image.show()
@@ -223,6 +302,8 @@ class window():
 		
 		vbox=gtk.VBox(False,0)
 		vbox1=gtk.VBox(False,10)
+		
+        	vbox.pack_start(menu_bar, False, False, 0)
 		vbox.pack_start(hbox, False, False, 0)
         	vbox1.pack_start(sw)
         	vbox1.set_border_width(2)
@@ -254,6 +335,7 @@ class window():
 		hbox.show()
 		vbox1.show()
 		vbox.show()
+		
 		self.window.show()
 
 	def cut(self,widget):
@@ -517,4 +599,3 @@ def main():
 if __name__=="__main__":
 	window()
 	main()
-
