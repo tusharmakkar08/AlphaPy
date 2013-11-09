@@ -213,21 +213,23 @@ class window():
 		sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self.textview = gtk.TextView()
 		self.textview.set_editable(True)
-		self.textbuffer = self.textview.get_buffer()
-		self.insert_event = self.textview.get_buffer().connect("insert-text",self._on_insert)
-	        self.delete_event = self.textview.get_buffer().connect("delete-range",self._on_delete)
-	        self.change_event = self.textview.get_buffer().connect("changed",self._on_text_changed)
+		self.textbuffer .append( self.textview.get_buffer())
+		self.insert_event = self.textbuffer[-1].connect("insert-text",self._on_insert)
+	        self.delete_event = self.textbuffer[-1].connect("delete-range",self._on_delete)
+	        self.change_event = self.textbuffer[-1].connect("changed",self._on_text_changed)
+	        if title!='Untitled':
+	        	self.textbuffer[-1].set_text(open(title,"r+").read())
 
 		sw.add(self.textview)
 		self.textview.show()
 		sw.show()
 		self.clipboard=gtk.Clipboard()		
-		self.textbuffer.connect("changed",self.changetitle);
+		self.textbuffer[-1].connect("changed",self.changetitle);
 		widget=gtk.VBox(False,10)
 		widget.pack_start(sw)
         	widget.set_border_width(2)
         	widget.show()
-        	self.textbuffer.connect("notify::cursor-position",self.changestbr);
+        	self.textbuffer[-1].connect("notify::cursor-position",self.changestbr);
 		
 		#add the tab
 		self.notebook.insert_page(widget, hbox)
@@ -255,6 +257,7 @@ class window():
 		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(0)
+		self.textbuffer=[]
 		self.file=''
 		#~ open_1=wx.NewId()
 		#~ save_1=wx.NewId()
@@ -440,13 +443,16 @@ class window():
 		self.window.show()
 
 	def cut(self,widget):
-		self.textbuffer.cut_clipboard(self.clipboard, True)
+		pg=self.notebook.get_current_page()
+		self.textbuffer[pg].cut_clipboard(self.clipboard, True)
 	
 	def copy(self,widget):
-		self.textbuffer.copy_clipboard(self.clipboard)
+		pg=self.notebook.get_current_page()
+		self.textbuffer[pg].copy_clipboard(self.clipboard)
 	
 	def paste(self,widget):
-		self.textbuffer.paste_clipboard(self.clipboard,None, True)
+		pg=self.notebook.get_current_page()
+		self.textbuffer[pg].paste_clipboard(self.clipboard,None, True)
 	
 	
 	def changetitle(self,widget):
@@ -458,14 +464,15 @@ class window():
 		
 	def changestbr(self,widget,data=None):
 		"Change statusbar values"
-		cl= 1+self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line()
-		col=self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert()).get_line_index()
-		ln=self.textbuffer.get_line_count()
-		ch=self.textbuffer.get_char_count()
+		pg=self.notebook.get_current_page()
+		cl= 1+self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert()).get_line()
+		col=self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert()).get_line_index()
+		ln=self.textbuffer[pg].get_line_count()
+		ch=self.textbuffer[pg].get_char_count()
 		selln=0
 		selch=0
-		if self.textbuffer.get_selection_bounds()!=():
-			st,end=self.textbuffer.get_selection_bounds()
+		if self.textbuffer[pg].get_selection_bounds()!=():
+			st,end=self.textbuffer[pg].get_selection_bounds()
 			selln=end.get_line()-st.get_line()+1
 			selch=end.get_offset()-st.get_offset()
 		data="\t\tline : "+str(cl)+"  col : "+str(col)+"\t\tlines : "+str(ln)+" chars : "+str(ch)+"\tSel : "+str(selln)+" | "+str(selch)
@@ -477,6 +484,7 @@ class window():
 		
 		
 	def undo(self,widget):
+		pg=self.notebook.get_current_page()
 		if len(self.undos) == 0:
 			print "length is "+ str(len(self.undos))
 		        return
@@ -489,43 +497,47 @@ class window():
 	        self.redos.append(redo)
 	        del(self.undos[-1])
 	
-	        self.insert_event = self.textview.get_buffer().connect("insert-text",self._on_insert)
-	        self.delete_event = self.textview.get_buffer().connect("delete-range",self._on_delete)
+	        self.insert_event = self.textbuffer[pg].connect("insert-text",self._on_insert)
+	        self.delete_event = self.textbuffer[pg].connect("delete-range",self._on_delete)
         
 	def _do_action(self, action):
+		pg=self.notebook.get_current_page()
 	        if action["action"] == "delete":
-			start_iter = self.textview.get_buffer().get_iter_at_offset(action["offset"])
-			end_iter =  self.textview.get_buffer().get_iter_at_offset(action["offset"] + len(action["text"]))
-			self.textview.get_buffer().delete(start_iter, end_iter)
+			start_iter = self.textbuffer[pg].get_iter_at_offset(action["offset"])
+			end_iter =  self.textbuffer[pg].get_iter_at_offset(action["offset"] + len(action["text"]))
+			self.textbuffer[pg].delete(start_iter, end_iter)
 			action["action"] = "insert"
 		
 		elif action["action"] == "insert":
-			start_iter = self.textview.get_buffer().get_iter_at_offset(action["offset"])
-			self.textview.get_buffer().insert(start_iter, action["text"])
+			start_iter = self.textbuffer[pg].get_iter_at_offset(action["offset"])
+			self.textbuffer[pg].insert(start_iter, action["text"])
 			action["action"] = "delete"
 
 		return action
 	
 	def redo(self,widget):
+		pg=self.notebook.get_current_page()
 		if len(self.redos) == 0:
 			return
 			
-		self.textview.get_buffer().disconnect(self.delete_event)
-		self.textview.get_buffer().disconnect(self.insert_event)
+		self.textbuffer[pg].disconnect(self.delete_event)
+		self.textbuffer[pg].disconnect(self.insert_event)
 		
 		redo = self.redos[-1]
 		undo = self._do_action(redo)
 		self.undos.append(undo)
 		del(self.redos[-1])
 
-		self.insert_event = self.textview.get_buffer().connect("insert-text",self._on_insert)
-		self.delete_event = self.textview.get_buffer().connect("delete-range",self._on_delete)
+		self.insert_event = self.textbuffer[pg].connect("insert-text",self._on_insert)
+		self.delete_event = self.textbuffer[pg].connect("delete-range",self._on_delete)
 
 	def _on_text_changed(self, buff):
-		self.textview.get_buffer().disconnect(self.change_event)
-		self.change_event = self.textview.get_buffer().connect("changed",self._on_text_changed)
+		pg=self.notebook.get_current_page()
+		self.textbuffer[pg].disconnect(self.change_event)
+		self.change_event = self.textbuffer[pg].connect("changed",self._on_text_changed)
 
 	def _on_insert(self, text_buffer, iter, text, length, data=None):	
+		pg=self.notebook.get_current_page()
                 print "inserting\n"
 		cmd = {"action":"delete","offset":iter.get_offset(),"text":text}
 
@@ -533,17 +545,18 @@ class window():
 		self.redos = []
 		if text == "\n": 
 			cur_line = iter.get_line()
-			prev_line_iter = self.textview.get_buffer().get_iter_at_line(cur_line)
+			prev_line_iter = self.textbuffer[pg].get_iter_at_line(cur_line)
 			pl_offset = prev_line_iter.get_offset()
-			pl_text = self.textview.get_buffer().get_text(prev_line_iter, iter, False)
+			pl_text = self.textbuffer[pg].get_text(prev_line_iter, iter, False)
 			if pl_text.strip().find("*") == 0:
 				ws = ""
 				if not pl_text.startswith("*"):
 					ws = (pl_text.split("*")[0])
 
 	def _on_delete(self, text_buffer, start_iter, end_iter, data=None):
+		pg=self.notebook.get_current_page()
                 print "deleting\n"
-		text = self.textview.get_buffer().get_text(start_iter,end_iter, False)        
+		text = self.textbuffer[pg].get_text(start_iter,end_iter, False)        
 		cmd = {"action":"insert","offset":start_iter.get_offset(),"text":text}
 		self._add_undo(cmd)
 
@@ -633,29 +646,20 @@ class window():
 	
 	def new(self,widget):
 		"To open a new file and save the current file"
-		if self.change:
-			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Save before openig new file ?")
-			dialog.set_title("WARNING ..")
-			response = dialog.run()
-			dialog.destroy()
-			if response == gtk.RESPONSE_YES:
-				self.onsave(self.window)
-		self.textbuffer.set_text("")
-		self.file=""
+		#if self.change:
+		#	dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Save before openig new file ?")
+		#	dialog.set_title("WARNING ..")
+		#	response = dialog.run()
+		#	dialog.destroy()
+		#	if response == gtk.RESPONSE_YES:
+		#		self.onsave(self.window)
+		
+		self.create_tab('Untitled')
 		self.change=0
-		self.title="AlphaPy Text Editor"
-	   	self.window.set_title(self.title)
 		
 		
 	def onopen(self,widget):
 		"To open a file and set the current file"
-		if self.change:
-			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Save before opening new file ?")
-			dialog.set_title("WARNING ..")
-			response = dialog.run()
-			dialog.destroy()
-			if response == gtk.RESPONSE_YES:
-				self.onsave(self.window)
 		dialog = gtk.FileChooserDialog("Open..",
                                None,
                                gtk.FILE_CHOOSER_ACTION_OPEN,
@@ -670,10 +674,8 @@ class window():
 
 		response = dialog.run()
 		if response == gtk.RESPONSE_OK:
-		    self.file= dialog.get_filename()
-		    self.textbuffer.set_text(open(self.file,"r+").read())
-		    self.title=self.file+" - AlphaPy Text Editor"
-		    self.window.set_title(self.title)
+		    file= dialog.get_filename()
+		    self.create_tab(file)
 		    self.change=0
 		elif response == gtk.RESPONSE_CANCEL:
 		    print 'Closed, no files selected'
