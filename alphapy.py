@@ -9,6 +9,7 @@ from Compiler import compiler
 class window():
 		
 	def search_dialog(self,widget,data=None):
+		pg=self.notebook.get_current_page()
 		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
 		
 		dialog.set_size_request(300,100)
@@ -50,6 +51,7 @@ class window():
 		dialog.destroy()	
 	
 	def wrap_dialog(self,widget,data=None):
+		pg=self.notebook.get_current_page()
 		if self.count>1:
 			self.count = 0
 			self.not_found_dialog(widget)
@@ -70,8 +72,8 @@ class window():
 			self.found = []
 			self.found1 = []
 			self.found.append('')
-			self.found.append(self.textbuffer.get_start_iter())
-			self.found1.append(self.textbuffer.get_end_iter())
+			self.found.append(self.textbuffer[pg].get_start_iter())
+			self.found1.append(self.textbuffer[pg].get_end_iter())
 			if self.next1:
 				self.find_next(widget)
 			elif self.prev1:
@@ -136,17 +138,19 @@ class window():
 		dialog.destroy()	
 	def delete_event(self,widget=None,event=None,data=None):
 		"Quit window"
-		if self.change:
-			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Save before quit ?")
+		f=0
+		for i in self.change:
+			if i:
+				f=1
+				break 
+		if f:
+			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"All unsaved data will be lost,are you sure ?")
 			dialog.set_title("WARNING ..")
 			response = dialog.run()
 			dialog.destroy()
 			if response == gtk.RESPONSE_YES:
-				self.onsave(self.window)
-			elif response == gtk.RESPONSE_NO:
 				gtk.main_quit()
 			else: return True
-			return False
 		else:
 			gtk.main_quit()
 			return False
@@ -186,7 +190,7 @@ class window():
     	def create_tab(self, title):
 		#hbox will be used to store a label and button, as notebook tab title
 		hbox = gtk.HBox(False, 0)
-		label = gtk.Label(title)
+		label = gtk.Label(title.split('/')[-1])
 		hbox.pack_start(label)
 
 		#get a stock close button image
@@ -211,17 +215,17 @@ class window():
 		#tab contents
 		sw = gtk.ScrolledWindow()
 		sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		self.textview = gtk.TextView()
-		self.textview.set_editable(True)
-		self.textbuffer .append( self.textview.get_buffer())
+		self.textview .append( gtk.TextView())
+		self.textview[-1].set_editable(True)
+		self.textbuffer .append( self.textview[-1].get_buffer())
 		self.insert_event = self.textbuffer[-1].connect("insert-text",self._on_insert)
 	        self.delete_event = self.textbuffer[-1].connect("delete-range",self._on_delete)
 	        self.change_event = self.textbuffer[-1].connect("changed",self._on_text_changed)
 	        if title!='Untitled':
 	        	self.textbuffer[-1].set_text(open(title,"r+").read())
 
-		sw.add(self.textview)
-		self.textview.show()
+		sw.add(self.textview[-1])
+		self.textview[-1].show()
 		sw.show()
 		self.clipboard=gtk.Clipboard()		
 		self.textbuffer[-1].connect("changed",self.changetitle);
@@ -229,6 +233,8 @@ class window():
 		widget.pack_start(sw)
         	widget.set_border_width(2)
         	widget.show()
+        	self.file.append(title)
+        	self.change+=[0]
         	self.textbuffer[-1].connect("notify::cursor-position",self.changestbr);
 		
 		#add the tab
@@ -242,6 +248,9 @@ class window():
 		pagenum = self.notebook.page_num(widget)
 		#and close it
 		self.notebook.remove_page(pagenum)
+		self.textbuffer.pop(pagenum)
+		self.file.pop(pagenum)
+		self.change.pop(pagenum)
 		
 	def __init__(self):
 		"Initiate the window,button,etc .."
@@ -252,13 +261,14 @@ class window():
 		self.window=gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.window.set_resizable(True)
 		self.title="AlphaPy Text Editor"
-		self.change=0
+		self.change=[]
 		self.window.set_size_request(1000,700)
 		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(0)
 		self.textbuffer=[]
-		self.file=''
+		self.textview=[]
+		self.file=[]
 		#~ open_1=wx.NewId()
 		#~ save_1=wx.NewId()
 		#~ undo_1=wx.NewId()
@@ -279,7 +289,6 @@ class window():
 		expand=False
 		fill=False
 		padding=2
-		self.file=""
 		self.tooltips = gtk.Tooltips()
 		
 		file_menu = gtk.Menu() 
@@ -455,12 +464,37 @@ class window():
 		self.textbuffer[pg].paste_clipboard(self.clipboard,None, True)
 	
 	
-	def changetitle(self,widget):
+	def changetitle(self,widget,title=None):
 		"Change Title when file is temporary"
-		if self.change==0:
-			self.title="**"+self.title
-			self.window.set_title(self.title)
-			self.change=1
+		pg=self.notebook.get_current_page()
+		if title is None:title=self.file[pg]
+		print self.change[pg]
+		if self.change[pg]==0:
+			hbox = gtk.HBox(False, 0)
+			label = gtk.Label('**'+title.split('/')[-1])
+			hbox.pack_start(label)
+
+			#get a stock close button image
+			close_image = gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU)
+			image_w, image_h = gtk.icon_size_lookup(gtk.ICON_SIZE_MENU)
+		
+			#make the close button
+			btn = gtk.Button()
+			btn.set_relief(gtk.RELIEF_NONE)
+			btn.set_focus_on_click(False)
+			btn.add(close_image)
+			hbox.pack_start(btn, False, False)
+		
+			#this reduces the size of the button
+			style = gtk.RcStyle()
+			style.xthickness = 0
+			style.ythickness = 0
+			btn.modify_style(style)
+
+			hbox.show_all()
+			self.notebook.set_tab_label(self.textview[pg], gtk.Label(hbox))
+			btn.connect('clicked', self.on_closetab_button_clicked, widget)
+			self.change[pg]=1
 		
 	def changestbr(self,widget,data=None):
 		"Change statusbar values"
@@ -476,10 +510,10 @@ class window():
 			selln=end.get_line()-st.get_line()+1
 			selch=end.get_offset()-st.get_offset()
 		data="\t\tline : "+str(cl)+"  col : "+str(col)+"\t\tlines : "+str(ln)+" chars : "+str(ch)+"\tSel : "+str(selln)+" | "+str(selch)
-		if self.file=="":
+		if self.file[pg]=="Untitled":
 			text="New file"+data
 		else:
-			text=self.file+data
+			text=self.file[pg]+data
 		self.status_bar.push(self.context_id, text)
 		
 		
@@ -570,7 +604,8 @@ class window():
 	
 	def onsave(self,widget):
 		"To save a file and set th file parameter if it is a new file or just overwrite"
-		if self.file=="":
+		pg=self.notebook.get_current_page()
+		if self.file[pg]=="Untitled":
 			dialog = gtk.FileChooserDialog("Save..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
 			dialog.set_default_response(gtk.RESPONSE_OK)
 			filter = gtk.FileFilter()
@@ -579,31 +614,30 @@ class window():
 	 		dialog.add_filter(filter)
 	 		response = dialog.run()
 	   		if response == gtk.RESPONSE_OK:
-	   			self.file=dialog.get_filename()
-	   			out=open(self.file,"w")
-	   			start, end = self.textbuffer.get_bounds()
-	   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
+	   			self.file[pg]=dialog.get_filename()
+	   			out=open(self.file[pg],"w")
+	   			start, end = self.textbuffer[pg].get_bounds()
+	   			text = self.textbuffer[pg].get_text(start, end, include_hidden_chars=True)
 	   			out.write(text)
-	   			self.title=self.file+" - AlphaPy Text Editor"
-	   			self.window.set_title(self.title)
-	   			self.change=0
+	   			self.changetitle(self.file[pg])
+	   			self.change[pg]=0
 	   			print "Save Succesful"
 	   	   	elif response == gtk.RESPONSE_CANCEL:
 	   		       print 'Closed, no files selected'
 	   		dialog.destroy()
 	   	else:
-	   		out=open(self.file,"w")
-	   		start, end = self.textbuffer.get_bounds()
-	   		text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
+	   		out=open(self.file[pg],"w")
+	   		start, end = self.textbuffer[pg].get_bounds()
+	   		text = self.textbuffer[pg].get_text(start, end, include_hidden_chars=True)
 	   		out.write(text)
 	   		print "Save Succesful"
-   			self.title=self.file+" - AlphaPy Text Editor"
-   			self.window.set_title(self.title)
-   			self.change=0
+   			self.changetitle(self.file[pg])
+   			self.change[pg]=0
 	   		
 	
 	def saveas(self,widget):
 			"Save the file with a different name"
+			pg=self.notebook.get_current_page()
 			dialog = gtk.FileChooserDialog("Save as..",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
 			dialog.set_default_response(gtk.RESPONSE_OK)
 			filter = gtk.FileFilter()
@@ -612,22 +646,22 @@ class window():
 	 		dialog.add_filter(filter)
 	 		response = dialog.run()
 	   		if response == gtk.RESPONSE_OK:
-	   			self.file=dialog.get_filename()
-	   			out=open(self.file,"w")
-	   			start, end = self.textbuffer.get_bounds()
-	   			text = self.textbuffer.get_text(start, end, include_hidden_chars=True)
+	   			self.file[pg]=dialog.get_filename()
+	   			out=open(self.file[pg],"w")
+	   			start, end = self.textbuffer[pg].get_bounds()
+	   			text = self.textbuffer[pg].get_text(start, end, include_hidden_chars=True)
 	   			out.write(text)
-	   			self.title=self.file+" - AlphaPy Text Editor"
-	   			self.window.set_title(self.title)
-	   			self.change=0
+	   			self.changetitle(self.file[pg])
+	   			self.change[pg]=0
 	   			print "Save Succesful"
 	   	   	elif response == gtk.RESPONSE_CANCEL:
 	   		       print 'Closed, no files selected'
 	   		dialog.destroy()
 	
 	def compiler(self,widget):
-		if self.file!='':
-			compiler.compile_file(self.file)
+		pg=self.notebook.get_current_page()
+		if self.file!='Untitled':
+			compiler.compile_file(self.file[pg])
 			with open(compiler.log_file,'rb') as f:
 				l = f.readlines()
 				msg = ''.join(l)
@@ -635,8 +669,9 @@ class window():
 			self.nbook.set_current_page(self.nbook.page_num(self.comp))
 				
 	def executor(self, widget):
-		if self.file!='':
-			compiler.execute(self.file)
+		pg=self.notebook.get_current_page()
+		if self.file!='Untitled':
+			compiler.execute(self.file[pg])
 			with open(compiler.log_file,'rb') as f:
 				l = f.readlines()
 				msg = ''.join(l)
@@ -655,7 +690,6 @@ class window():
 		#		self.onsave(self.window)
 		
 		self.create_tab('Untitled')
-		self.change=0
 		
 		
 	def onopen(self,widget):
@@ -676,22 +710,22 @@ class window():
 		if response == gtk.RESPONSE_OK:
 		    file= dialog.get_filename()
 		    self.create_tab(file)
-		    self.change=0
 		elif response == gtk.RESPONSE_CANCEL:
 		    print 'Closed, no files selected'
 		dialog.destroy()
 		
 	def find_next(self,widget, data=None):
+		pg=self.notebook.get_current_page()
 		self.found1 = self.found
 		iput = self.entry.get_text()
-		start_iter = self.found[1] if self.found else self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert())
+		start_iter = self.found[1] if self.found else self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
 		self.found = start_iter.forward_search(iput,0, None) 
 		if self.found:
 			self.count=0
 			self.found1 = self.found
 			match_start,match_end = self.found
-			self.textbuffer.select_range(match_start,match_end)
-			self.textview.scroll_to_iter(match_start,0.0)
+			self.textbuffer[pg].select_range(match_start,match_end)
+			self.textview[pg].scroll_to_iter(match_start,0.0)
 		elif self.found == None:
 			self.count+=1
 			self.next1 = True
@@ -699,9 +733,10 @@ class window():
 			self.wrap_dialog(widget)
 			
 	def find_prev(self,widget,data=None):
+		pg=self.notebook.get_current_page()
 		self.found = self.found1
 		iput = self.entry.get_text()
-		start_iter = self.found1[0] if self.found1 else self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert())
+		start_iter = self.found1[0] if self.found1 else self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
 		self.found1 = start_iter.backward_search(iput,0, None) 
 		if self.found1:
 			self.count=0
@@ -709,8 +744,8 @@ class window():
 			self.next1 = False
 			self.found = self.found1
 			match_start,match_end = self.found1
-			self.textbuffer.select_range(match_start,match_end)
-			self.textview.scroll_to_iter(match_start,0.0)
+			self.textbuffer[pg].select_range(match_start,match_end)
+			self.textview[pg].scroll_to_iter(match_start,0.0)
 			
 		elif self.found1 == None:
 			self.count+=1
