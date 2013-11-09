@@ -175,7 +175,6 @@ class window():
 		style.bg[gtk.STATE_PRELIGHT] = color
 		button.props.relief = gtk.RELIEF_NONE
 
-		#set the button's style to the one you created
 		button.set_style(style)
 		self.tooltips.set_tip(button, tip)
 		button.add(hbox)
@@ -183,6 +182,64 @@ class window():
 		button.connect("clicked",func)
 		self.hbox.pack_start(button, expand, fill, padding)
     		button.show()
+    	
+    	def create_tab(self, title):
+		#hbox will be used to store a label and button, as notebook tab title
+		hbox = gtk.HBox(False, 0)
+		label = gtk.Label(title)
+		hbox.pack_start(label)
+
+		#get a stock close button image
+		close_image = gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU)
+		image_w, image_h = gtk.icon_size_lookup(gtk.ICON_SIZE_MENU)
+		
+		#make the close button
+		btn = gtk.Button()
+		btn.set_relief(gtk.RELIEF_NONE)
+		btn.set_focus_on_click(False)
+		btn.add(close_image)
+		hbox.pack_start(btn, False, False)
+		
+		#this reduces the size of the button
+		style = gtk.RcStyle()
+		style.xthickness = 0
+		style.ythickness = 0
+		btn.modify_style(style)
+
+		hbox.show_all()
+
+		#tab contents
+		sw = gtk.ScrolledWindow()
+		sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.textview = gtk.TextView()
+		self.textview.set_editable(True)
+		self.textbuffer = self.textview.get_buffer()
+		self.insert_event = self.textview.get_buffer().connect("insert-text",self._on_insert)
+	        self.delete_event = self.textview.get_buffer().connect("delete-range",self._on_delete)
+	        self.change_event = self.textview.get_buffer().connect("changed",self._on_text_changed)
+
+		sw.add(self.textview)
+		self.textview.show()
+		sw.show()
+		self.clipboard=gtk.Clipboard()		
+		self.textbuffer.connect("changed",self.changetitle);
+		widget=gtk.VBox(False,10)
+		widget.pack_start(sw)
+        	widget.set_border_width(2)
+        	widget.show()
+        	self.textbuffer.connect("notify::cursor-position",self.changestbr);
+		
+		#add the tab
+		self.notebook.insert_page(widget, hbox)
+		
+		#connect the close button
+		btn.connect('clicked', self.on_closetab_button_clicked, widget)
+
+	def on_closetab_button_clicked(self, sender, widget):
+		#get the page number of the tab we wanted to close
+		pagenum = self.notebook.page_num(widget)
+		#and close it
+		self.notebook.remove_page(pagenum)
 		
 	def __init__(self):
 		"Initiate the window,button,etc .."
@@ -313,34 +370,24 @@ class window():
     		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
     		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
-		sw = gtk.ScrolledWindow()
-		sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		self.textview = gtk.TextView()
-		self.textview.set_editable(True)
-		self.textbuffer = self.textview.get_buffer()
-		self.insert_event = self.textview.get_buffer().connect("insert-text",self._on_insert)
-	        self.delete_event = self.textview.get_buffer().connect("delete-range",self._on_delete)
-	        self.change_event = self.textview.get_buffer().connect("changed",self._on_text_changed)
-
-		sw.add(self.textview)
-		self.textview.show()
-		sw.show()
-		self.clipboard=gtk.Clipboard()		
-		self.textbuffer.connect("changed",self.changetitle);
+			
 		
 		
 		vbox=gtk.VBox(False,0)
-		vbox1=gtk.VBox(False,10)
-		
         	vbox.pack_start(menu_bar, False, False, 0)
         	eb = gtk.EventBox()     
 		eb.add(self.hbox)
 		eb.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#4D4D4D"))
 		vbox.pack_start(eb, False, False, 0)
-        	vbox1.pack_start(sw)
-        	vbox1.set_border_width(2)
-        	vbox.pack_start(vbox1, True, True, 0)
         	
+        	
+        	self.notebook=gtk.Notebook()
+        	self.notebook.set_tab_pos(gtk.POS_TOP);
+        	self.create_tab('Untitled')
+        	self.notebook.show()
+        	
+        	
+        	vbox.pack_start(self.notebook, True, True, 0)
         	
 		misc=gtk.Notebook()
 		misc.set_tab_pos(gtk.POS_LEFT);
@@ -381,7 +428,6 @@ class window():
 		vtb.show()
         	
         	self.status_bar = gtk.Statusbar()      
-        	self.textbuffer.connect("notify::cursor-position",self.changestbr);
    	        vbox.pack_start(self.status_bar, False, False, 0)
    	        self.status_bar.show()
    	        self.context_id = self.status_bar.get_context_id("Statusbar example")
@@ -389,7 +435,6 @@ class window():
 		self.window.add(vbox)
 		self.hbox.show()
 		eb.show()
-		vbox1.show()
 		vbox.show()
 		misc.set_current_page(0)
 		self.window.show()
