@@ -16,8 +16,13 @@ class window():
 		hbox1 = gtk.HBox(False,0)
 		hbox2 = gtk.HBox(False,0)
 		#~ hbox3 = gtk.HBox(False,0)
+		
 		self.found = False
 		self.found1 = False
+		self.next1 = False
+		self.prev1 = False
+		self.count=0
+		
 		label = gtk.Label("Enter String")
 		hbox1.pack_start(label)
 		label.show()
@@ -44,6 +49,52 @@ class window():
 		response = dialog.run()
 		dialog.destroy()	
 	
+	def wrap_dialog(self,widget,data=None):
+		if self.count>1:
+			self.count = 0
+			self.not_found_dialog(widget)
+			return
+			
+		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK,gtk.RESPONSE_OK,gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
+		dialog.set_size_request(400,100)
+		
+		hbox1 = gtk.HBox(False,0)
+		label = gtk.Label("End of the document reached. Wrap around search?")
+		label.show()
+		hbox1.pack_start(label)
+		hbox1.show()
+		
+		dialog.vbox.pack_start(hbox1, gtk.TRUE, gtk.TRUE, 0)
+		response = dialog.run()
+		if response==gtk.RESPONSE_OK:
+			self.found = []
+			self.found1 = []
+			self.found.append('')
+			self.found.append(self.textbuffer.get_start_iter())
+			self.found1.append(self.textbuffer.get_end_iter())
+			if self.next1:
+				self.find_next(widget)
+			elif self.prev1:
+				self.find_prev(widget)
+			self.next1 = False
+			self.prev1 = False
+		dialog.destroy()	
+
+	def not_found_dialog(self,widget,data=None):
+		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK,gtk.RESPONSE_OK))
+		
+		dialog.set_size_request(400,100)
+		
+		hbox1 = gtk.HBox(False,0)
+		label = gtk.Label("Input String not Found")
+		label.show()
+		hbox1.pack_start(label)
+		hbox1.show()
+		
+		dialog.vbox.pack_start(hbox1, gtk.TRUE, gtk.TRUE, 0)
+		response = dialog.run()
+		dialog.destroy()	
+
 	def replace_dialog(self,widget,data=None):
 		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
 		
@@ -300,6 +351,7 @@ class window():
 		term.show()
 		comp = gtk.TextView()
 		comp.set_editable(False)
+		comp.set_cursor_visible(False)
 		self.comp_buff = comp.get_buffer()
 		comp.show()
 		vtb=gtk.VBox(False,0)
@@ -573,20 +625,41 @@ class window():
 		dialog.destroy()
 		
 	def find_next(self,widget, data=None):
+		self.found1 = self.found
 		iput = self.entry.get_text()
-		start_iter = self.found[1] if self.found else self.textbuffer.get_start_iter()
+		start_iter = self.found[1] if self.found else self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert())
 		self.found = start_iter.forward_search(iput,0, None) 
 		if self.found:
+			self.count=0
+			self.found1 = self.found
 			match_start,match_end = self.found
 			self.textbuffer.select_range(match_start,match_end)
+			self.textview.scroll_to_iter(match_start,0.0)
+		elif self.found == None:
+			self.count+=1
+			self.next1 = True
+			self.prev1 = False
+			self.wrap_dialog(widget)
 			
 	def find_prev(self,widget,data=None):
+		self.found = self.found1
 		iput = self.entry.get_text()
-		end_iter = self.found1[1] if self.found1 else self.textbuffer.get_end_iter()
-		self.found1 = end_iter.backward_search(iput,0, None) 
+		start_iter = self.found1[0] if self.found1 else self.textbuffer.get_iter_at_mark(self.textbuffer.get_insert())
+		self.found1 = start_iter.backward_search(iput,0, None) 
 		if self.found1:
+			self.count=0
+			self.prev1 = True
+			self.next1 = False
+			self.found = self.found1
 			match_start,match_end = self.found1
 			self.textbuffer.select_range(match_start,match_end)
+			self.textview.scroll_to_iter(match_start,0.0)
+			
+		elif self.found1 == None:
+			self.count+=1
+			self.next1 = False
+			self.prev1 = True
+			self.wrap_dialog(widget)
 	
 def main():
 	gtk.main()
