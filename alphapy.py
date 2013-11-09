@@ -4,9 +4,10 @@ import pygtk
 pygtk.require('2.0')
 import gtk,vte
 #import wx
+from Compiler import compiler 
 
 class window():
-	
+		
 	def search_dialog(self,widget,data=None):
 		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
 		
@@ -105,6 +106,7 @@ class window():
 		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(0)
+		self.file=''
 		#~ open_1=wx.NewId()
 		#~ save_1=wx.NewId()
 		#~ undo_1=wx.NewId()
@@ -205,13 +207,14 @@ class window():
 		
 		menu_bar.show()
 		
-		
 		self.buttn("icons/new.png",self.new,"New file",expand, fill, padding)
 		self.buttn("icons/open.png",self.onopen,"Open file",expand, fill, padding," Open")
 		self.buttn("icons/save.png",self.onsave,"Save file",expand, fill, padding," Save")
 		self.buttn("icons/save as.png",self.saveas,"Save as..",expand, fill, padding)
 		self.buttn("icons/undo.png",self.undo,"Undo",expand, fill, padding," Undo")
-		self.buttn("icons/redo.png",self.redo,"Redo",expand, fill, padding)
+		self.buttn("icons/redo.png",self.redo,"Redo",expand, fill, padding,'Redo')
+		self.buttn("icons/compile.png",self.compiler,"Compile",expand, fill, padding)
+		self.buttn("icons/compile-run.png",self.executor,"Compile and Run",expand, fill, padding)
 		self.buttn("icons/cut.png",self.cut,"Cut",expand, fill, padding)
 		self.buttn("icons/copy.png",self.copy,"Copy",expand, fill, padding)
 		self.buttn("icons/paste.png",self.paste,"Paste",expand, fill, padding)
@@ -254,11 +257,23 @@ class window():
 		term.set_emulation('xterm')
 		term.set_size_request(800,150)
 		term.show()
+		comp = gtk.TextView()
+		comp.set_editable(False)
+		self.comp_buff = comp.get_buffer()
+		comp.show()
 		vtb=gtk.VBox(False,0)
 		vtb.pack_start(term, False, False, 0)
+		vtb2 = gtk.VBox(False,0)
+		vtb2.add(comp)
+		vtb2.show()
 		ter_lbl=gtk.Label("Terminal")
+		comp_lbl = gtk.Label('Compiler')
 		misc.append_page(vtb,ter_lbl)	
+		misc.append_page(vtb2, comp_lbl)
 		misc.show()
+		self.nbook = misc
+		self.comp = vtb2
+		
 		vbox.pack_start(misc, False, False, 4)
 		vtb.show()
         	
@@ -273,7 +288,7 @@ class window():
 		eb.show()
 		vbox1.show()
 		vbox.show()
-		
+		misc.set_current_page(0)
 		self.window.show()
 
 	def cut(self,widget):
@@ -448,6 +463,25 @@ class window():
 	   	   	elif response == gtk.RESPONSE_CANCEL:
 	   		       print 'Closed, no files selected'
 	   		dialog.destroy()
+	
+	def compiler(self,widget):
+		if self.file!='':
+			compiler.compile_file(self.file)
+			with open(compiler.log_file,'rb') as f:
+				l = f.readlines()
+				msg = ''.join(l)
+				self.comp_buff.set_text(msg)
+			self.nbook.set_current_page(self.nbook.page_num(self.comp))
+				
+	def executor(self, widget):
+		if self.file!='':
+			compiler.execute(self.file)
+			with open(compiler.log_file,'rb') as f:
+				l = f.readlines()
+				msg = ''.join(l)
+				self.comp_buff.set_text(msg)
+			self.nbook.set_current_page(self.nbook.page_num(self.comp))
+	
 	
 	def new(self,widget):
 		"To open a new file and save the current file"
