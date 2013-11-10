@@ -245,14 +245,15 @@ class window():
 
 	def on_closetab_button_clicked(self, sender, widget):
 		"Close a tab"
-		if self.change==1:
+		pagenum = self.notebook.page_num(widget)
+		if self.change[pagenum]==1:
 			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Do you want to save before close ?")
 			dialog.set_title("WARNING ..")
 			response = dialog.run()
 			dialog.destroy()
 			if response == gtk.RESPONSE_YES:
 				self.onsave(self.window)
-		pagenum = self.notebook.page_num(widget)
+		
 		#and close it
 		self.notebook.remove_page(pagenum)
 		self.textbuffer.pop(pagenum)
