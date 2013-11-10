@@ -244,13 +244,21 @@ class window():
 		btn.connect('clicked', self.on_closetab_button_clicked, self.widget[-1])
 
 	def on_closetab_button_clicked(self, sender, widget):
-		#get the page number of the tab we wanted to close
+		"Close a tab"
+		if self.change==1:
+			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Do you want to save before close ?")
+			dialog.set_title("WARNING ..")
+			response = dialog.run()
+			dialog.destroy()
+			if response == gtk.RESPONSE_YES:
+				self.onsave(self.window)
 		pagenum = self.notebook.page_num(widget)
 		#and close it
 		self.notebook.remove_page(pagenum)
 		self.textbuffer.pop(pagenum)
 		self.file.pop(pagenum)
 		self.change.pop(pagenum)
+		self.textview.pop(pagenum)
 		
 	def __init__(self):
 		"Initiate the window,button,etc .."
@@ -468,6 +476,7 @@ class window():
 	def changetitle(self,widget,title=None):
 		"Change Title when file is temporary"
 		pg=self.notebook.get_current_page()
+		print self.file,pg
 		if self.change[pg]==0:
 			hbox = gtk.HBox(False, 0)
 			print title
@@ -508,6 +517,7 @@ class window():
 		
 			#make the close button
 			btn = gtk.Button()
+
 			btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			btn.add(close_image)
