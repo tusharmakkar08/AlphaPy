@@ -260,6 +260,7 @@ class window():
 		self.file.pop(pagenum)
 		self.change.pop(pagenum)
 		self.textview.pop(pagenum)
+		self.widget.pop(pagenum)
 		
 	def __init__(self):
 		"Initiate the window,button,etc .."
@@ -477,7 +478,7 @@ class window():
 	def changetitle(self,widget,title=None):
 		"Change Title when file is temporary"
 		pg=self.notebook.get_current_page()
-		print self.file,pg
+		print self.file,pg,self.widget
 		if self.change[pg]==0:
 			hbox = gtk.HBox(False, 0)
 			print title
