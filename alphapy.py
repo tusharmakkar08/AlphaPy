@@ -229,19 +229,19 @@ class window():
 		sw.show()
 		self.clipboard=gtk.Clipboard()		
 		self.textbuffer[-1].connect("changed",self.changetitle);
-		widget=gtk.VBox(False,10)
-		widget.pack_start(sw)
-        	widget.set_border_width(2)
-        	widget.show()
+		self.widget.append(gtk.VBox(False,10))
+		self.widget[-1].pack_start(sw)
+        	self.widget[-1].set_border_width(2)
+        	self.widget[-1].show()
         	self.file.append(title)
         	self.change+=[0]
         	self.textbuffer[-1].connect("notify::cursor-position",self.changestbr);
 		
 		#add the tab
-		self.notebook.insert_page(widget, hbox)
+		self.notebook.insert_page(self.widget[-1], hbox)
 		
 		#connect the close button
-		btn.connect('clicked', self.on_closetab_button_clicked, widget)
+		btn.connect('clicked', self.on_closetab_button_clicked, self.widget[-1])
 
 	def on_closetab_button_clicked(self, sender, widget):
 		#get the page number of the tab we wanted to close
@@ -269,6 +269,7 @@ class window():
 		self.textbuffer=[]
 		self.textview=[]
 		self.file=[]
+		self.widget=[]
 		#~ open_1=wx.NewId()
 		#~ save_1=wx.NewId()
 		#~ undo_1=wx.NewId()
@@ -467,10 +468,11 @@ class window():
 	def changetitle(self,widget,title=None):
 		"Change Title when file is temporary"
 		pg=self.notebook.get_current_page()
-		if title is None:title=self.file[pg]
-		print self.change[pg]
 		if self.change[pg]==0:
 			hbox = gtk.HBox(False, 0)
+			print title
+			if title is None:
+				title=self.file[pg]
 			label = gtk.Label('**'+title.split('/')[-1])
 			hbox.pack_start(label)
 
@@ -492,9 +494,35 @@ class window():
 			btn.modify_style(style)
 
 			hbox.show_all()
-			self.notebook.set_tab_label(self.textview[pg], gtk.Label(hbox))
-			btn.connect('clicked', self.on_closetab_button_clicked, widget)
+			self.notebook.set_tab_label(self.widget[pg], hbox)
+			btn.connect('clicked', self.on_closetab_button_clicked, self.widget[pg])
 			self.change[pg]=1
+		elif not title is None:
+			hbox = gtk.HBox(False, 0)
+			label = gtk.Label(title.split('/')[-1])
+			hbox.pack_start(label)
+
+			#get a stock close button image
+			close_image = gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU)
+			image_w, image_h = gtk.icon_size_lookup(gtk.ICON_SIZE_MENU)
+		
+			#make the close button
+			btn = gtk.Button()
+			btn.set_relief(gtk.RELIEF_NONE)
+			btn.set_focus_on_click(False)
+			btn.add(close_image)
+			hbox.pack_start(btn, False, False)
+		
+			#this reduces the size of the button
+			style = gtk.RcStyle()
+			style.xthickness = 0
+			style.ythickness = 0
+			btn.modify_style(style)
+
+			hbox.show_all()
+			self.notebook.set_tab_label(self.widget[pg], hbox)
+			btn.connect('clicked', self.on_closetab_button_clicked, self.widget[pg])
+			self.change[pg]=0
 		
 	def changestbr(self,widget,data=None):
 		"Change statusbar values"
@@ -619,7 +647,7 @@ class window():
 	   			start, end = self.textbuffer[pg].get_bounds()
 	   			text = self.textbuffer[pg].get_text(start, end, include_hidden_chars=True)
 	   			out.write(text)
-	   			self.changetitle(self.file[pg])
+	   			self.changetitle(None,self.file[pg])
 	   			self.change[pg]=0
 	   			print "Save Succesful"
 	   	   	elif response == gtk.RESPONSE_CANCEL:
@@ -631,7 +659,7 @@ class window():
 	   		text = self.textbuffer[pg].get_text(start, end, include_hidden_chars=True)
 	   		out.write(text)
 	   		print "Save Succesful"
-   			self.changetitle(self.file[pg])
+   			self.changetitle(None,self.file[pg])
    			self.change[pg]=0
 	   		
 	
@@ -651,7 +679,7 @@ class window():
 	   			start, end = self.textbuffer[pg].get_bounds()
 	   			text = self.textbuffer[pg].get_text(start, end, include_hidden_chars=True)
 	   			out.write(text)
-	   			self.changetitle(self.file[pg])
+	   			self.changetitle(None,self.file[pg])
 	   			self.change[pg]=0
 	   			print "Save Succesful"
 	   	   	elif response == gtk.RESPONSE_CANCEL:
