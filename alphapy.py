@@ -5,6 +5,8 @@ pygtk.require('2.0')
 import gtk,vte
 #import wx
 from Compiler import compiler 
+from Syntax import syntaxhighlighter
+
 
 class window():
 		
@@ -244,13 +246,23 @@ class window():
 		btn.connect('clicked', self.on_closetab_button_clicked, self.widget[-1])
 
 	def on_closetab_button_clicked(self, sender, widget):
-		#get the page number of the tab we wanted to close
+		"Close a tab"
 		pagenum = self.notebook.page_num(widget)
+		if self.change[pagenum]==1:
+			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Do you want to save before close ?")
+			dialog.set_title("WARNING ..")
+			response = dialog.run()
+			dialog.destroy()
+			if response == gtk.RESPONSE_YES:
+				self.onsave(self.window)
+		
 		#and close it
 		self.notebook.remove_page(pagenum)
 		self.textbuffer.pop(pagenum)
 		self.file.pop(pagenum)
 		self.change.pop(pagenum)
+		self.textview.pop(pagenum)
+		self.widget.pop(pagenum)
 		
 	def __init__(self):
 		"Initiate the window,button,etc .."
@@ -381,6 +393,7 @@ class window():
 		self.buttn("icons/copy.png",self.copy,"Copy",expand, fill, padding)
 		self.buttn("icons/paste.png",self.paste,"Paste",expand, fill, padding)
     		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
+    		self.buttn("icons/find.png",self.fri_rtf,"Export",expand, fill, padding)
     		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
@@ -468,6 +481,7 @@ class window():
 	def changetitle(self,widget,title=None):
 		"Change Title when file is temporary"
 		pg=self.notebook.get_current_page()
+		print self.file,pg,self.widget
 		if self.change[pg]==0:
 			hbox = gtk.HBox(False, 0)
 			print title
@@ -508,6 +522,7 @@ class window():
 		
 			#make the close button
 			btn = gtk.Button()
+
 			btn.set_relief(gtk.RELIEF_NONE)
 			btn.set_focus_on_click(False)
 			btn.add(close_image)
@@ -786,6 +801,234 @@ class window():
 			self.next1[pg] = False
 			self.prev1[pg] = True
 			self.wrap_dialog(widget)
+	
+	def mono_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,1)
+		syntaxhighlighter.open_html(name)
+	
+	def manni_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,2)
+		syntaxhighlighter.open_html(name)
+	
+	def rrt_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,3)
+		syntaxhighlighter.open_html(name)
+	
+	def perl_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,4)
+		syntaxhighlighter.open_html(name)
+	
+	def borl_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,5)
+		syntaxhighlighter.open_html(name)
+	
+	def col_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,6)
+		syntaxhighlighter.open_html(name)
+	
+	def def_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,7)
+		syntaxhighlighter.open_html(name)
+	
+	def mur_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,8)
+		syntaxhighlighter.open_html(name)
+	
+	def vs_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,9)
+		syntaxhighlighter.open_html(name)
+	
+	def tr_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,10)
+		syntaxhighlighter.open_html(name)
+	
+	def tan_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,11)
+		syntaxhighlighter.open_html(name)
+	
+	def fr_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,12)
+		syntaxhighlighter.open_html(name)
+	
+	def aut_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,13)
+		syntaxhighlighter.open_html(name)
+	
+	def bw_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,14)
+		syntaxhighlighter.open_html(name)
+	
+	def emac_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,15)
+		syntaxhighlighter.open_html(name)
+	
+	def vi_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,16)
+		syntaxhighlighter.open_html(name)
+	
+	def pas_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,17)
+		syntaxhighlighter.open_html(name)
+	
+	def fri_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,18)
+		syntaxhighlighter.open_html(name)
+	
+	def nat_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,19)
+		syntaxhighlighter.open_html(name)
+	
+	def mono_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,1)
+		syntaxhighlighter.open_rtf(name)
+	
+	def manni_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,2)
+		syntaxhighlighter.open_rtf(name)
+	
+	def rrt_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,3)
+		syntaxhighlighter.open_rtf(name)
+	
+	def perl_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,4)
+		syntaxhighlighter.open_rtf(name)
+	
+	def borl_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,5)
+		syntaxhighlighter.open_rtf(name)
+	
+	def col_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,6)
+		syntaxhighlighter.rtf_html(name)
+	
+	def def_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,7)
+		syntaxhighlighter.open_rtf(name)
+	
+	def mur_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,8)
+		syntaxhighlighter.open_rtf(name)
+	
+	def vs_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,9)
+		syntaxhighlighter.open_rtf(name)
+	
+	def tr_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,10)
+		syntaxhighlighter.open_rtf(name)
+	
+	def tan_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,11)
+		syntaxhighlighter.open_rtf(name)
+	
+	def fr_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,12)
+		syntaxhighlighter.open_rtf(name)
+	
+	def aut_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,13)
+		syntaxhighlighter.open_rtf(name)
+	
+	def bw_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,14)
+		syntaxhighlighter.open_rtf(name)
+	
+	def emac_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,15)
+		syntaxhighlighter.open_rtf(name)
+	
+	def vi_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,16)
+		syntaxhighlighter.open_rtf(name)
+	
+	def pas_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,17)
+		syntaxhighlighter.open_rtf(name)
+	
+	def fri_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,18)
+		syntaxhighlighter.open_rtf(name)
+	
+	def nat_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,19)
+		syntaxhighlighter.open_rtf(name)
 	
 def main():
 	gtk.main()

@@ -58,9 +58,11 @@ def pref_style():
 	k=input()
 	return styles[k-1]
 
-def html_out(name):
+def html_out(name,k):
 	"""HTML printed"""
-	m=pref_style()
+	styles = list(get_all_styles())
+	m=styles[k-1]
+	print m
 	new=""
 	for i in name:
 		if i==".":
@@ -90,9 +92,10 @@ def open_html(name):
 	url=new+".html"
 	webbrowser.open(url,new=newt)
 
-def rtf_out(name):
+def rtf_out(name,k):
 	"""Rich text format"""
-	m=pref_style()
+	styles = list(get_all_styles())
+	m=styles[k-1]
 	new=""
 	for i in name:
 		if i==".":
@@ -126,7 +129,7 @@ def copy_clipboard(name,flag):
 	
 """Code Testing"""
 #t=raw_input("Enter filename\n")
-#rtf_out(t)
+#rtf_out("test.py",5)
 #copy_clipboard(t,1)
 #open_rtf(t)
 #print pref_style()	
