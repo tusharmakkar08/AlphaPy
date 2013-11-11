@@ -20,7 +20,7 @@ def compile_file(in_file,  ext = '', out_file=log_file):			#in_file-> source cod
 	fl = in_file.split('/')[-1]
 	file_name = fl.split('.')[0]
 	object_file = path+'/'+file_name
-	
+	cmd = ''
 	ccmd = '-Wall -o ' + '"' + object_file + '"  "' + in_file + '"'
 	
 	if ext == 'c':

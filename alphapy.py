@@ -18,11 +18,11 @@ class window():
 		hbox2 = gtk.HBox(False,0)
 		#~ hbox3 = gtk.HBox(False,0)
 		
-		self.found = False
-		self.found1 = False
-		self.next1 = False
-		self.prev1 = False
-		self.count=0
+		self.found = {pg:False}
+		self.found1 = {pg:False}
+		self.next1 = {pg:False}
+		self.prev1 = {pg:False}
+		self.count = {pg:0}
 		
 		label = gtk.Label("Enter String")
 		hbox1.pack_start(label)
@@ -52,8 +52,8 @@ class window():
 	
 	def wrap_dialog(self,widget,data=None):
 		pg=self.notebook.get_current_page()
-		if self.count>1:
-			self.count = 0
+		if self.count[pg]>1:
+			self.count[pg] = 0
 			self.not_found_dialog(widget)
 			return
 			
@@ -69,17 +69,17 @@ class window():
 		dialog.vbox.pack_start(hbox1, gtk.TRUE, gtk.TRUE, 0)
 		response = dialog.run()
 		if response==gtk.RESPONSE_OK:
-			self.found = []
-			self.found1 = []
-			self.found.append('')
-			self.found.append(self.textbuffer[pg].get_start_iter())
-			self.found1.append(self.textbuffer[pg].get_end_iter())
-			if self.next1:
+			self.found[pg] = []
+			self.found1[pg] = []
+			self.found[pg].append('')
+			self.found[pg].append(self.textbuffer[pg].get_start_iter())
+			self.found1[pg].append(self.textbuffer[pg].get_end_iter())
+			if self.next1[pg]:
 				self.find_next(widget)
 			elif self.prev1:
 				self.find_prev(widget)
-			self.next1 = False
-			self.prev1 = False
+			self.next1[pg] = False
+			self.prev1[pg] = False
 		dialog.destroy()	
 
 	def not_found_dialog(self,widget,data=None):
@@ -551,8 +551,8 @@ class window():
 			print "length is "+ str(len(self.undos))
 		        return
 		print "length is "+str(len(self.undos))
-	        self.textview.get_buffer().disconnect(self.delete_event)
-	        self.textview.get_buffer().disconnect(self.insert_event)
+	        self.textview[pg].get_buffer().disconnect(self.delete_event)
+	        self.textview[pg].get_buffer().disconnect(self.insert_event)
 
 	        undo = self.undos[-1]
 	        redo = self._do_action(undo)
@@ -688,7 +688,7 @@ class window():
 	
 	def compiler(self,widget):
 		pg=self.notebook.get_current_page()
-		if self.file!='Untitled':
+		if self.file[pg]!='Untitled':
 			compiler.compile_file(self.file[pg])
 			with open(compiler.log_file,'rb') as f:
 				l = f.readlines()
@@ -744,41 +744,47 @@ class window():
 		
 	def find_next(self,widget, data=None):
 		pg=self.notebook.get_current_page()
-		self.found1 = self.found
+		if pg not in self.found:
+			self.found1[pg] = None
+			self.found1[pg] = None
+		self.found1[pg] = self.found[pg]
 		iput = self.entry.get_text()
-		start_iter = self.found[1] if self.found else self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
-		self.found = start_iter.forward_search(iput,0, None) 
-		if self.found:
-			self.count=0
-			self.found1 = self.found
-			match_start,match_end = self.found
+		start_iter = self.found[pg][1] if self.found[pg] else self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
+		self.found[pg] = start_iter.forward_search(iput,0, None) 
+		if self.found[pg]:
+			self.count[pg]=0
+			self.found1[pg] = self.found[pg]
+			match_start,match_end = self.found[pg]
 			self.textbuffer[pg].select_range(match_start,match_end)
 			self.textview[pg].scroll_to_iter(match_start,0.0)
-		elif self.found == None:
-			self.count+=1
-			self.next1 = True
-			self.prev1 = False
+		elif self.found[pg] == None:
+			self.count[pg]+=1
+			self.next1[pg] = True
+			self.prev1[pg] = False
 			self.wrap_dialog(widget)
 			
 	def find_prev(self,widget,data=None):
 		pg=self.notebook.get_current_page()
-		self.found = self.found1
+		if pg not in self.found:
+			self.found1[pg] = None
+			self.found1[pg] = None
+		self.found[pg] = self.found1[pg]
 		iput = self.entry.get_text()
-		start_iter = self.found1[0] if self.found1 else self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
-		self.found1 = start_iter.backward_search(iput,0, None) 
-		if self.found1:
-			self.count=0
-			self.prev1 = True
-			self.next1 = False
-			self.found = self.found1
-			match_start,match_end = self.found1
+		start_iter = self.found1[pg][0] if self.found1[pg] else self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
+		self.found1[pg] = start_iter.backward_search(iput,0, None) 
+		if self.found1[pg]:
+			self.count[pg]=0
+			self.prev1[pg] = True
+			self.next1[pg] = False
+			self.found[pg] = self.found1[pg]
+			match_start,match_end = self.found1[pg]
 			self.textbuffer[pg].select_range(match_start,match_end)
 			self.textview[pg].scroll_to_iter(match_start,0.0)
 			
-		elif self.found1 == None:
-			self.count+=1
-			self.next1 = False
-			self.prev1 = True
+		elif self.found1[pg] == None:
+			self.count[pg]+=1
+			self.next1[pg] = False
+			self.prev1[pg] = True
 			self.wrap_dialog(widget)
 	
 def main():
