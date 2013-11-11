@@ -608,7 +608,11 @@ class window():
 		vtb=gtk.VBox(False,0)
 		vtb.pack_start(term, False, False, 0)
 		vtb2 = gtk.VBox(False,0)
-		vtb2.add(comp)
+		sw = gtk.ScrolledWindow()
+		sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		sw.add(comp)
+		sw.show()
+		vtb2.add(sw)
 		vtb2.show()
 		
 		scrbl=gtk.TextView()
@@ -621,8 +625,12 @@ class window():
 		self.msg=gtk.TextView()
 		self.msg_bf=self.msg.get_buffer()
 		self.msg.set_editable(False)
+		sw = gtk.ScrolledWindow()
+		sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		sw.add(self.msg)
+		sw.show()
 		vtb4=gtk.VBox(False,0)
-		vtb4.add(self.msg)
+		vtb4.add(sw)
 		self.msg.show()
 		vtb4.show()		
 		ter_lbl=gtk.Label("Terminal")
@@ -810,7 +818,7 @@ class window():
 		print words[len(words)-1]
 		if words!="" and words[len(words)-1]==" ":
 			king=spell_check.get_text(words)
-			print king
+			self.msg_bf.insert(self.msg_bf.get_start_iter(),king)
 		self._add_undo(cmd)
 		self.redos = []
 		if text == "\n": 
