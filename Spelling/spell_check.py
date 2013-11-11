@@ -86,25 +86,31 @@ def spell_correct(word):
 	return cor_list
 
 
-def get_text():
+def get_text(user_inp):
 	"""
 		Getting running text
 	"""
 	t=""
-	while(1):
-		user_inp=getch()
-		print user_inp
-		if user_inp==" " or user_inp=="\n":
-			k=[]
-			k=spell_correct(t)
-			if k==[]:
-				t=""
-				continue
-			ask_resp(k)
-			t=""
-			user_inp=""
-		t+=user_inp
-			
+	#print user_inp
+	link=user_inp.split(" ")[::-1]
+	k=[]
+	k=spell_correct(link[1])
+	if k==[]:
+		t=""
+		return
+	tell_user(k)
+	t=""
+	user_inp=""
+
+def tell_user(k):
+	print "It might be wrong . These are the possible alternatives"
+	tin=1
+	newst=""
+	for i in k:
+		print i,tin,type(i)
+		newst+="#",tin," : ",i
+		tin+=1
+	print newst
 			
 def ask_resp(l):
 	"""
@@ -126,4 +132,4 @@ def ask_resp(l):
 			print l[ting-1]
 			return l[ting-1]
 			
-print get_text()
+#get_text(raw_input(""))
