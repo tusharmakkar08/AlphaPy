@@ -85,8 +85,7 @@ class window():
 		dialog.destroy()	
 
 	def not_found_dialog(self,widget,data=None):
-		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK,gtk.RESPONSE_OK))
-		
+		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK,gtk.RESPONSE_OK))	
 		dialog.set_size_request(400,100)
 		
 		hbox1 = gtk.HBox(False,0)
@@ -100,44 +99,85 @@ class window():
 		dialog.destroy()	
 
 	def replace_dialog(self,widget,data=None):
+		pg=self.notebook.get_current_page()
 		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
-		
-		dialog.set_size_request(300,100)
+		dialog.set_size_request(350,200)
 		
 		hbox1 = gtk.HBox(False,0)
 		hbox2 = gtk.HBox(False,0)
-		#~ hbox3 = gtk.HBox(False,0)
-		self.found = False
+		hbox3 = gtk.HBox(False,0)
+		hbox4 = gtk.HBox(False,0)
+		hbox5 = gtk.HBox(False,0)
+		hbox6 = gtk.HBox(False,0)
+		hbox7 = gtk.HBox(False,0)
+		hbox8 = gtk.HBox(False,0)
+		hbox9 = gtk.HBox(False,0)
+		hbox10 = gtk.HBox(False,0)
+		
+		self.found = {pg:False}
+		self.found1 = {pg:False}
+		self.next1 = {pg:False}
+		self.prev1 = {pg:False}
+		self.count = {pg:0}
+		
 		label = gtk.Label("Enter String")
 		hbox1.pack_start(label)
 		label.show()
+		hbox1.show()
 		
 		self.entry= gtk.Entry()
-		hbox1.pack_start(self.entry)
+		hbox2.pack_start(self.entry)
 		self.entry.show()
+		hbox2.show()
 		
-		button1 = gtk.Button('Find')
+		hbox3.pack_start(hbox1)
+		hbox3.pack_start(hbox2)
+		hbox3.show()
+		
+		label = gtk.Label("Enter Replacing String")
+		hbox4.pack_start(label)
+		label.show()
+		hbox4.show()
+		
+		self.entry= gtk.Entry()
+		hbox5.pack_start(self.entry)
+		self.entry.show()
+		hbox5.show()
+		
+		hbox6.pack_start(hbox4)
+		hbox6.pack_start(hbox5)
+		hbox6.show()
+		
+		button1 = gtk.Button('Next')
 		button1.connect('clicked', self.find_next,1)
 		button1.show()
-		hbox2.pack_start(button1)
+		hbox7.pack_start(button1)
+		hbox7.show()
 		
-		button = gtk.Button('Find Next')
-		button.connect('clicked', self.find_next)
-		button.show()
-		hbox2.pack_start(button)
+		button2 = gtk.Button('Previous')
+		button2.connect('clicked', self.find_prev)
+		button2.show()
+		hbox8.pack_start(button2)
+		hbox8.show()
 		
-		#~ button = gtk.Button('Find Previous')
-		#~ #button.connect('clicked', self.find_prev)
-		#~ button.show()
-		#~ hbox2.pack_start(button)
+		button3 = gtk.Button('Replace')
+		button3.connect('clicked', self.find_prev)
+		button3.show()
+		hbox9.pack_start(button3)
+		hbox9.show()
 		
-		hbox1.show()
-		hbox2.show()
-		dialog.vbox.pack_start(hbox1, gtk.TRUE, gtk.TRUE, 0)
-		dialog.vbox.pack_start(hbox2, gtk.TRUE, gtk.TRUE, 0)
+		hbox10.pack_start(hbox7)
+		hbox10.pack_start(hbox8)
+		hbox10.pack_start(hbox9)
+		hbox10.show()
+		
+		dialog.vbox.pack_start(hbox3, gtk.TRUE, gtk.TRUE, 0)
+		dialog.vbox.pack_start(hbox6, gtk.TRUE, gtk.TRUE, 0)
+		dialog.vbox.pack_start(hbox10, gtk.TRUE, gtk.TRUE,0)
 		
 		response = dialog.run()
 		dialog.destroy()	
+		
 	def delete_event(self,widget=None,event=None,data=None):
 		"Quit window"
 		f=0
@@ -392,9 +432,9 @@ class window():
 		self.buttn("icons/cut.png",self.cut,"Cut",expand, fill, padding)
 		self.buttn("icons/copy.png",self.copy,"Copy",expand, fill, padding)
 		self.buttn("icons/paste.png",self.paste,"Paste",expand, fill, padding)
-    		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
-    		self.buttn("icons/find.png",self.fri_rtf,"Export",expand, fill, padding)
-    		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
+		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
+		self.buttn("icons/find_replace.png",self.replace_dialog,"Find & Replace",expand, fill, padding)
+		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
 		
