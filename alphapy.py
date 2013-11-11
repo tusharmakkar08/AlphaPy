@@ -3,8 +3,6 @@
 import pygtk
 pygtk.require('2.0')
 import gtk,vte
-#import wx
-import time
 from Compiler import compiler 
 from Syntax import syntaxhighlighter
 from Spelling import spell_check
