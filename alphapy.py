@@ -5,6 +5,8 @@ pygtk.require('2.0')
 import gtk,vte
 #import wx
 from Compiler import compiler 
+from Syntax import syntaxhighlighter
+
 
 class window():
 		
@@ -391,6 +393,7 @@ class window():
 		self.buttn("icons/copy.png",self.copy,"Copy",expand, fill, padding)
 		self.buttn("icons/paste.png",self.paste,"Paste",expand, fill, padding)
     		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
+    		self.buttn("icons/find.png",self.mono_html,"Export",expand, fill, padding)
     		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
@@ -792,6 +795,121 @@ class window():
 			self.next1 = False
 			self.prev1 = True
 			self.wrap_dialog(widget)
+	
+	def mono_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,1)
+		syntaxhighlighter.open_html(name)
+	
+	def manni_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,2)
+		syntaxhighlighter.open_html(name)
+	
+	def rrt_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,3)
+		syntaxhighlighter.open_html(name)
+	
+	def perl_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,4)
+		syntaxhighlighter.open_html(name)
+	
+	def borl_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,5)
+		syntaxhighlighter.open_html(name)
+	
+	def col_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,6)
+		syntaxhighlighter.open_html(name)
+	
+	def def_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,7)
+		syntaxhighlighter.open_html(name)
+	
+	def mur_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,8)
+		syntaxhighlighter.open_html(name)
+	
+	def vs_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,9)
+		syntaxhighlighter.open_html(name)
+	
+	def tr_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,10)
+		syntaxhighlighter.open_html(name)
+	
+	def tan_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,11)
+		syntaxhighlighter.open_html(name)
+	
+	def fr_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,12)
+		syntaxhighlighter.open_html(name)
+	
+	def aut_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,13)
+		syntaxhighlighter.open_html(name)
+	
+	def bw_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,14)
+		syntaxhighlighter.open_html(name)
+	
+	def emac_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,15)
+		syntaxhighlighter.open_html(name)
+	
+	def vi_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,16)
+		syntaxhighlighter.open_html(name)
+	
+	def pas_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,17)
+		syntaxhighlighter.open_html(name)
+	
+	def fri_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,18)
+		syntaxhighlighter.open_html(name)
+	
+	def nat_html(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.html_out(name,19)
+		syntaxhighlighter.open_html(name)
+	
 	
 def main():
 	gtk.main()
