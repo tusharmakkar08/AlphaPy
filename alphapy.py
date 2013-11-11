@@ -104,8 +104,9 @@ class window():
 		
 		hbox1 = gtk.HBox(False,0)
 		hbox2 = gtk.HBox(False,0)
-		#~ hbox3 = gtk.HBox(False,0)
+		hbox3 = gtk.HBox(False,0)
 		self.found = False
+		
 		label = gtk.Label("Enter String")
 		hbox1.pack_start(label)
 		label.show()
@@ -114,6 +115,14 @@ class window():
 		hbox1.pack_start(self.entry)
 		self.entry.show()
 		
+		label = gtk.Label("Enter String")
+		hbox2.pack_start(label)
+		label.show()
+		
+		self.entry= gtk.Entry()
+		hbox2.pack_start(self.entry)
+		self.entry.show()
+
 		button1 = gtk.Button('Find')
 		button1.connect('clicked', self.find_next,1)
 		button1.show()
