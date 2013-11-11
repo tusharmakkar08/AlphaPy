@@ -100,7 +100,7 @@ class window():
 
 	def replace_dialog(self,widget,data=None):
 		pg=self.notebook.get_current_page()
-		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL))
+		dialog = gtk.Dialog("Find", None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,(gtk.STOCK_OK,gtk.RESPONSE_OK))
 		dialog.set_size_request(350,200)
 		
 		hbox1 = gtk.HBox(False,0)
@@ -139,9 +139,9 @@ class window():
 		label.show()
 		hbox4.show()
 		
-		self.entry= gtk.Entry()
-		hbox5.pack_start(self.entry)
-		self.entry.show()
+		self.entry1= gtk.Entry()
+		hbox5.pack_start(self.entry1)
+		self.entry1.show()
 		hbox5.show()
 		
 		hbox6.pack_start(hbox4)
@@ -161,7 +161,7 @@ class window():
 		hbox8.show()
 		
 		button3 = gtk.Button('Replace')
-		button3.connect('clicked', self.find_prev)
+		button3.connect('clicked', self.replace_string)
 		button3.show()
 		hbox9.pack_start(button3)
 		hbox9.show()
@@ -804,6 +804,8 @@ class window():
 			self.found1[pg] = None
 		self.found1[pg] = self.found[pg]
 		iput = self.entry.get_text()
+		if iput=='':
+			return
 		start_iter = self.found[pg][1] if self.found[pg] else self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
 		self.found[pg] = start_iter.forward_search(iput,0, None) 
 		if self.found[pg]:
@@ -825,6 +827,8 @@ class window():
 			self.found1[pg] = None
 		self.found[pg] = self.found1[pg]
 		iput = self.entry.get_text()
+		if iput=='':
+			return
 		start_iter = self.found1[pg][0] if self.found1[pg] else self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
 		self.found1[pg] = start_iter.backward_search(iput,0, None) 
 		if self.found1[pg]:
@@ -842,6 +846,25 @@ class window():
 			self.prev1[pg] = True
 			self.wrap_dialog(widget)
 	
+	def replace_string(self,widget,data=None):
+		pg=self.notebook.get_current_page()
+		iput = self.entry1.get_text()
+		search = self.entry.get_text()
+		print iput
+		if iput=='':
+			return
+		if search=='' or not self.found[pg]:
+			pos = self.textbuffer[pg].get_iter_at_mark(self.textbuffer[pg].get_insert())
+		else:
+			self.textbuffer[pg].delete(self.found[pg][0], self.found[pg][1])
+			pos = self.found[pg][0]
+		self.textbuffer[pg].insert(pos, iput)
+		self.found[pg] = False
+		self.found1[pg] = False
+		self.next1[pg] = False
+		self.prev1[pg] = False
+		self.count[pg] = False
+		
 	def mono_html(self,widget):
 		pg=self.notebook.get_current_page()
 		name=self.file[pg]
