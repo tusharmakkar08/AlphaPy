@@ -4,6 +4,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk,vte
 #import wx
+import time
 from Compiler import compiler 
 from Syntax import syntaxhighlighter
 from Spelling import spell_check
@@ -1068,7 +1069,7 @@ class window():
 		self.next1[pg] = False
 		self.prev1[pg] = False
 		self.count[pg] = False
-		
+					
 	def mono_html(self,widget):
 		pg=self.notebook.get_current_page()
 		name=self.file[pg]
