@@ -6,7 +6,7 @@ import gtk,vte
 #import wx
 from Compiler import compiler 
 from Syntax import syntaxhighlighter
-
+from Spelling import spell_check
 
 class window():
 		
@@ -617,7 +617,12 @@ class window():
 		pg=self.notebook.get_current_page()
                 print "inserting\n"
 		cmd = {"action":"delete","offset":iter.get_offset(),"text":text}
-
+		start = self.textbuffer[pg].get_start_iter()
+		end = self.textbuffer[pg].get_end_iter()	
+		words = self.textbuffer[pg].get_text(start,end)
+		print words[len(words)-1]
+		if words!="" and words[len(words)-1]==" ":
+			spell_check.get_text(words)
 		self._add_undo(cmd)
 		self.redos = []
 		if text == "\n": 
@@ -629,11 +634,13 @@ class window():
 				ws = ""
 				if not pl_text.startswith("*"):
 					ws = (pl_text.split("*")[0])
+			
 
 	def _on_delete(self, text_buffer, start_iter, end_iter, data=None):
 		pg=self.notebook.get_current_page()
                 print "deleting\n"
-		text = self.textbuffer[pg].get_text(start_iter,end_iter, False)        
+		text = self.textbuffer[pg].get_tex
+		t(start_iter,end_iter, False)        
 		cmd = {"action":"insert","offset":start_iter.get_offset(),"text":text}
 		self._add_undo(cmd)
 
