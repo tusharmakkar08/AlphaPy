@@ -393,7 +393,7 @@ class window():
 		self.buttn("icons/copy.png",self.copy,"Copy",expand, fill, padding)
 		self.buttn("icons/paste.png",self.paste,"Paste",expand, fill, padding)
     		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
-    		self.buttn("icons/find.png",self.aut_html,"Export",expand, fill, padding)
+    		self.buttn("icons/find.png",self.fri_rtf,"Export",expand, fill, padding)
     		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
@@ -910,6 +910,119 @@ class window():
 		syntaxhighlighter.html_out(name,19)
 		syntaxhighlighter.open_html(name)
 	
+	def mono_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,1)
+		syntaxhighlighter.open_rtf(name)
+	
+	def manni_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,2)
+		syntaxhighlighter.open_rtf(name)
+	
+	def rrt_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,3)
+		syntaxhighlighter.open_rtf(name)
+	
+	def perl_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,4)
+		syntaxhighlighter.open_rtf(name)
+	
+	def borl_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,5)
+		syntaxhighlighter.open_rtf(name)
+	
+	def col_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,6)
+		syntaxhighlighter.rtf_html(name)
+	
+	def def_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,7)
+		syntaxhighlighter.open_rtf(name)
+	
+	def mur_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,8)
+		syntaxhighlighter.open_rtf(name)
+	
+	def vs_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,9)
+		syntaxhighlighter.open_rtf(name)
+	
+	def tr_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,10)
+		syntaxhighlighter.open_rtf(name)
+	
+	def tan_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,11)
+		syntaxhighlighter.open_rtf(name)
+	
+	def fr_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,12)
+		syntaxhighlighter.open_rtf(name)
+	
+	def aut_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,13)
+		syntaxhighlighter.open_rtf(name)
+	
+	def bw_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,14)
+		syntaxhighlighter.open_rtf(name)
+	
+	def emac_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,15)
+		syntaxhighlighter.open_rtf(name)
+	
+	def vi_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,16)
+		syntaxhighlighter.open_rtf(name)
+	
+	def pas_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,17)
+		syntaxhighlighter.open_rtf(name)
+	
+	def fri_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,18)
+		syntaxhighlighter.open_rtf(name)
+	
+	def nat_rtf(self,widget):
+		pg=self.notebook.get_current_page()
+		name=self.file[pg]
+		syntaxhighlighter.rtf_out(name,19)
+		syntaxhighlighter.open_rtf(name)
 	
 def main():
 	gtk.main()
