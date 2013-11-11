@@ -616,6 +616,7 @@ class window():
 		scrbl_bf.set_text("This space can be used as a scribble/notes area.")
 		vtb3=gtk.VBox(False,0)
 		vtb3.add(scrbl)
+		scrbl.show()
 		vtb3.show()
 		self.msg=gtk.TextView()
 		self.msg_bf=self.msg.get_buffer()
