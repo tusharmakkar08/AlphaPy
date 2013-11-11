@@ -98,19 +98,15 @@ def get_text(user_inp):
 	if k==[]:
 		t=""
 		return
-	tell_user(k)
-	t=""
-	user_inp=""
+	return tell_user(k)
 
 def tell_user(k):
-	print "It might be wrong . These are the possible alternatives"
+	newst="It might be wrong . These are the possible alternatives\n"
 	tin=1
-	newst=""
 	for i in k:
-		print i,tin,type(i)
-		newst+="#",tin," : ",i
+		newst+="#"+str(tin)+" : "+str(i)+"\n"
 		tin+=1
-	print newst
+	return newst
 			
 def ask_resp(l):
 	"""

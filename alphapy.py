@@ -622,7 +622,8 @@ class window():
 		words = self.textbuffer[pg].get_text(start,end)
 		print words[len(words)-1]
 		if words!="" and words[len(words)-1]==" ":
-			spell_check.get_text(words)
+			king=spell_check.get_text(words)
+			print king
 		self._add_undo(cmd)
 		self.redos = []
 		if text == "\n": 
