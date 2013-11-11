@@ -393,7 +393,7 @@ class window():
 		self.buttn("icons/copy.png",self.copy,"Copy",expand, fill, padding)
 		self.buttn("icons/paste.png",self.paste,"Paste",expand, fill, padding)
     		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
-    		self.buttn("icons/find.png",self.mono_html,"Export",expand, fill, padding)
+    		self.buttn("icons/find.png",self.aut_html,"Export",expand, fill, padding)
     		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
