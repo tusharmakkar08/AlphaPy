@@ -268,7 +268,7 @@ class window():
 	        self.change_event = self.textbuffer[-1].connect("changed",self._on_text_changed)
 	        if title!='Untitled':
 	        	if d:self.textbuffer[-1].set_text(zlib.decompress(open(title,"rb+").read()))
-	        	else:self.textbuffer[-1].set_text()
+	        	else:self.textbuffer[-1].set_text(open(title,"r+").read())
 
 		sw.add(self.textview[-1])
 		self.textview[-1].show()
