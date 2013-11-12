@@ -8,7 +8,6 @@ from Syntax import syntaxhighlighter
 from Spelling import spell_check
 import zlib
 from Speech import speech
-from GoogleDrive import google
 
 class window():
 		
@@ -269,7 +268,7 @@ class window():
 	        self.change_event = self.textbuffer[-1].connect("changed",self._on_text_changed)
 	        if title!='Untitled':
 	        	if d:self.textbuffer[-1].set_text(zlib.decompress(open(title,"rb+").read()))
-	        	else:self.textbuffer[-1].set_text(open(title,"r+").read())
+	        	else:self.textbuffer[-1].set_text()
 
 		sw.add(self.textview[-1])
 		self.textview[-1].show()
@@ -283,6 +282,7 @@ class window():
         	self.file.append(title)
         	self.change+=[0]
         	self.textbuffer[-1].connect("notify::cursor-position",self.changestbr);
+        	self.textview[-1].set_wrap_mode(gtk.WRAP_WORD)
 		
 		#add the tab
 		self.notebook.insert_page(self.widget[-1], hbox)
@@ -320,7 +320,7 @@ class window():
 		self.window.set_resizable(True)
 		self.title="AlphaPy Text Editor"
 		self.change=[]
-		self.window.set_size_request(1100,700)
+		self.window.set_size_request(1000,700)
 		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(0)
@@ -353,11 +353,11 @@ class window():
 		file_menu = gtk.Menu() 
 		# Create the menu items
 		
-		new_item = gtk.MenuItem("New")
-		open_item = gtk.MenuItem("Open")
-		save_item = gtk.MenuItem("Save")
-		saveas_item = gtk.MenuItem("Save as..")
-		quit_item = gtk.MenuItem("Quit")
+		new_item = gtk.MenuItem("New\t\t\tCTRL+N")
+		open_item = gtk.MenuItem("Open\t\t\tCTRL+O")
+		save_item = gtk.MenuItem("Save\t\t\tCTRL+S")
+		saveas_item = gtk.MenuItem("Save as..\t\tCTRL+SHIFT+S")
+		quit_item = gtk.MenuItem("Quit\t\t\tCTRL+Q")
 		# Add them to the menu
 		file_menu.append(new_item)
 		file_menu.append(open_item)
@@ -379,13 +379,13 @@ class window():
 		file_menu.show()
 		
 		edit_menu=gtk.Menu()
-		cut_item = gtk.MenuItem("Cut")
-		copy_item = gtk.MenuItem("Copy")
-		paste_item = gtk.MenuItem("Paste")
-		undo_item = gtk.MenuItem("Undo")
-		redo_item = gtk.MenuItem("Redo")
-		delete_item = gtk.MenuItem("Delete")
-		find_item = gtk.MenuItem("Find")
+		cut_item = gtk.MenuItem("Cut\t\t\tCTRL+X")
+		copy_item = gtk.MenuItem("Copy\t\t\tCTRL+C")
+		paste_item = gtk.MenuItem("Paste\t\t\tCTRL+V")
+		undo_item = gtk.MenuItem("Undo\t\t\tCTRL+Z")
+		redo_item = gtk.MenuItem("Redo\t\t\tCTRL+Y")
+		delete_item = gtk.MenuItem("Delete\t\t\tDEL")
+		find_item = gtk.MenuItem("Find\t\t\tCTRL+F")
 		
 		cut_item.connect_object("activate", self.cut, "edit.cut")
 		copy_item.connect_object("activate", self.copy, "edit.copy")
@@ -611,18 +611,16 @@ class window():
 		self.buttn("icons/save as.png",self.saveas,"Save as..",expand, fill, padding)
 		self.buttn("icons/undo.png",self.undo,"Undo",expand, fill, padding," Undo")
 		self.buttn("icons/redo.png",self.redo,"Redo",expand, fill, padding,'Redo')
-		self.buttn("icons/compile.png",self.compiler,"Compile",expand, fill, padding,"  Compile")
+		self.buttn("icons/compile.png",self.compiler,"Compile",expand, fill, padding," Compile")
 		self.buttn("icons/compile-run.png",self.executor,"Compile and Run",expand, fill, padding)
 		self.buttn("icons/cut.png",self.cut,"Cut",expand, fill, padding)
 		self.buttn("icons/copy.png",self.copy,"Copy",expand, fill, padding)
 		self.buttn("icons/paste.png",self.paste,"Paste",expand, fill, padding)
 		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
 		self.buttn("icons/find_replace.png",self.replace_dialog,"Find & Replace",expand, fill, padding)
-		self.buttn("icons/compress.png",self.compr,"Compress",expand, fill, padding," Compress")
+		self.buttn("icons/compress.png",self.compr,"Compress",expand, fill, padding,"Compress")
 		self.buttn("icons/decompress.png",self.decompr,"Decompress",expand, fill, padding)
-		self.buttn("icons/speech.png",self.spee,"Speech",expand, fill, padding," Speak")  
-		self.buttn("icons/upload.png",self.google_up,"Upload",expand, fill, padding," Drive") 
-		self.buttn("icons/list.png",self.google_getname,"List",expand, fill, padding) 
+		self.buttn("icons/speech.png",self.spee,"Speech",expand, fill, padding,"Speak")  
 		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
@@ -1356,17 +1354,6 @@ class window():
 		pg=self.notebook.get_current_page()
 		text=self.textbuffer[pg].get_text(self.textbuffer[pg].get_start_iter(),self.textbuffer[pg].get_end_iter())
 		speech.txt_to_sp(text)
-	
-	def google_up(self,widget):
-		pg=self.notebook.get_current_page()
-		text=self.textbuffer[pg].get_text(self.textbuffer[pg].get_start_iter(),self.textbuffer[pg].get_end_iter())
-		google.upload(self.file[pg],text)
-	
-	def google_getname(self,widget):
-		pg=self.notebook.get_current_page()
-		text=self.textbuffer[pg].get_text(self.textbuffer[pg].get_start_iter(),self.textbuffer[pg].get_end_iter())
-		newstring=google.get_name()
-		self.msg_bf.insert(self.msg_bf.get_start_iter(),newstring)
 	
 	
 def main():
