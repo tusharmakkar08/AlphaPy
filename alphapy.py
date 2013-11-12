@@ -96,6 +96,7 @@ class window():
 		hbox1.show()
 		
 		dialog.vbox.pack_start(hbox1, gtk.TRUE, gtk.TRUE, 0)
+		print '\a'
 		response = dialog.run()
 		dialog.destroy()	
 
@@ -189,6 +190,7 @@ class window():
 		if f:
 			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"All unsaved data will be lost,are you sure ?")
 			dialog.set_title("WARNING ..")
+			print '\a'
 			response = dialog.run()
 			dialog.destroy()
 			if response == gtk.RESPONSE_YES:
@@ -293,6 +295,7 @@ class window():
 		if self.change[pagenum]==1:
 			dialog = gtk.MessageDialog(self.window,gtk.DIALOG_MODAL |gtk.DIALOG_DESTROY_WITH_PARENT,gtk.MESSAGE_WARNING,gtk.BUTTONS_YES_NO,"Do you want to save before close ?")
 			dialog.set_title("WARNING ..")
+			print '\a'
 			response = dialog.run()
 			dialog.destroy()
 			if response == gtk.RESPONSE_YES:
