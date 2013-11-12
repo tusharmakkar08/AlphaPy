@@ -21,3 +21,16 @@
 #  MA 02110-1301, USA.
 #  
 #  
+
+# Importing modules
+
+import os
+
+def txt_to_sp(words):
+	k="echo "+'"'+words+'"'+"|festival --tts"
+	os.system(k)
+	
+def test():
+	k=raw_input("")
+	txt_to_sp(k)
+
