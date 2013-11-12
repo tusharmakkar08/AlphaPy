@@ -23,3 +23,32 @@
 #  
 
 # Importing modules
+
+from pydrive.drive import GoogleDrive
+from pydrive.auth import GoogleAuth
+
+def upload(name,content):
+	gauth = GoogleAuth()
+	drive = GoogleDrive(gauth)
+	file1 = drive.CreateFile({'title': name})  
+	file1.SetContentString(content) 
+	file1.Upload()
+
+def get_name():
+	gauth = GoogleAuth()
+	drive = GoogleDrive(gauth)
+	file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
+	k=""
+	for file1 in file_list:
+		k+='%s\n'%(file1['title'])
+	return k
+		
+def test1():
+	get_name()
+
+def test2():
+	k=raw_input("Enter name of file\n")
+	l=raw_input("Enter content of file\n")
+	upload(k,l)
+	
+#test2()
