@@ -8,6 +8,7 @@ from Syntax import syntaxhighlighter
 from Spelling import spell_check
 import zlib
 from Speech import speech
+from GoogleDrive import google
 
 class window():
 		
@@ -266,7 +267,7 @@ class window():
 	        self.change_event = self.textbuffer[-1].connect("changed",self._on_text_changed)
 	        if title!='Untitled':
 	        	if d:self.textbuffer[-1].set_text(zlib.decompress(open(title,"rb+").read()))
-	        	else:self.textbuffer[-1].set_text()
+	        	else:self.textbuffer[-1].set_text(open(title,"r+").read())
 
 		sw.add(self.textview[-1])
 		self.textview[-1].show()
@@ -316,7 +317,7 @@ class window():
 		self.window.set_resizable(True)
 		self.title="AlphaPy Text Editor"
 		self.change=[]
-		self.window.set_size_request(1000,700)
+		self.window.set_size_request(1100,700)
 		self.window.set_title(self.title)
 		self.window.connect("delete_event",self.delete_event)
 		self.window.set_border_width(0)
@@ -617,6 +618,8 @@ class window():
 		self.buttn("icons/compress.png",self.compr,"Compress",expand, fill, padding,"Compress")
 		self.buttn("icons/decompress.png",self.decompr,"Decompress",expand, fill, padding)
 		self.buttn("icons/speech.png",self.spee,"Speech",expand, fill, padding,"Speak")  
+		self.buttn("icons/upload.png",self.google_up,"Upload",expand, fill, padding,"Drive") 
+		self.buttn("icons/list.png",self.google_getname,"List",expand, fill, padding) 
 		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
@@ -1350,6 +1353,17 @@ class window():
 		pg=self.notebook.get_current_page()
 		text=self.textbuffer[pg].get_text(self.textbuffer[pg].get_start_iter(),self.textbuffer[pg].get_end_iter())
 		speech.txt_to_sp(text)
+	
+	def google_up(self,widget):
+		pg=self.notebook.get_current_page()
+		text=self.textbuffer[pg].get_text(self.textbuffer[pg].get_start_iter(),self.textbuffer[pg].get_end_iter())
+		google.upload(self.file[pg],text)
+	
+	def google_getname(self,widget):
+		pg=self.notebook.get_current_page()
+		text=self.textbuffer[pg].get_text(self.textbuffer[pg].get_start_iter(),self.textbuffer[pg].get_end_iter())
+		newstring=google.get_name()
+		self.msg_bf.insert(self.msg_bf.get_start_iter(),newstring)
 	
 	
 def main():
