@@ -6,6 +6,7 @@ import gtk,vte
 from Compiler import compiler 
 from Syntax import syntaxhighlighter
 from Spelling import spell_check
+import zlib
 
 class window():
 		
@@ -228,7 +229,7 @@ class window():
 		self.hbox.pack_start(button, expand, fill, padding)
     		button.show()
     	
-    	def create_tab(self, title):
+    	def create_tab(self, title,d=0):
 		#hbox will be used to store a label and button, as notebook tab title
 		hbox = gtk.HBox(False, 0)
 		label = gtk.Label(title.split('/')[-1])
@@ -263,7 +264,8 @@ class window():
 	        self.delete_event = self.textbuffer[-1].connect("delete-range",self._on_delete)
 	        self.change_event = self.textbuffer[-1].connect("changed",self._on_text_changed)
 	        if title!='Untitled':
-	        	self.textbuffer[-1].set_text(open(title,"r+").read())
+	        	if d:self.textbuffer[-1].set_text(zlib.decompress(open(title,"rb+").read()))
+	        	else:self.textbuffer[-1].set_text()
 
 		sw.add(self.textview[-1])
 		self.textview[-1].show()
@@ -611,6 +613,8 @@ class window():
 		self.buttn("icons/paste.png",self.paste,"Paste",expand, fill, padding)
 		self.buttn("icons/find.png",self.search_dialog,"Find",expand, fill, padding)
 		self.buttn("icons/find_replace.png",self.replace_dialog,"Find & Replace",expand, fill, padding)
+		self.buttn("icons/compress.png",self.compr,"Compress",expand, fill, padding,"Compress")
+		self.buttn("icons/decompress.png",self.decompr,"Decompress",expand, fill, padding)
 		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
@@ -698,7 +702,52 @@ class window():
 		vbox.show()
 		misc.set_current_page(0)
 		self.window.show()
+		
+	def compr(self,widget):
+		"Compress text in current tab"
+		pg=self.notebook.get_current_page()
+		dialog = gtk.FileChooserDialog("Choose file name",None,gtk.FILE_CHOOSER_ACTION_SAVE,(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+		dialog.set_default_response(gtk.RESPONSE_OK)
+		filter = gtk.FileFilter()
+		filter.set_name("All files")
+	   	filter.add_pattern("*")
+	 	dialog.add_filter(filter)
+	 	response = dialog.run()
+	   	if response == gtk.RESPONSE_OK:
+	   		file=dialog.get_filename()
+	   		out=open(file,"wb+")
+	   		out.write((zlib.compress(self.textbuffer[pg].get_text(self.textbuffer[pg].get_start_iter(),self.textbuffer[pg].get_end_iter()))))
+			out.close()
+	   		print "Compress Succesful"
+	   	elif response == gtk.RESPONSE_CANCEL:
+	   	       print 'Closed, no files selected'
+	   	dialog.destroy()
+		
+		
+	def decompr(self,widget):
+		"Compress text in current tab"
+		pg=self.notebook.get_current_page()
+		dialog = gtk.FileChooserDialog("Open file to decompress",
+                               None,
+                               gtk.FILE_CHOOSER_ACTION_OPEN,
+                               (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+		dialog.set_default_response(gtk.RESPONSE_OK)
 
+		filter = gtk.FileFilter()
+		filter.set_name("All files")
+		filter.add_pattern("*")
+		dialog.add_filter(filter)
+
+		response = dialog.run()
+		if response == gtk.RESPONSE_OK:
+		    file= dialog.get_filename()
+		    if file in self.file:return
+		    self.create_tab(file ,1)
+		elif response == gtk.RESPONSE_CANCEL:
+		    print 'Closed, no files selected'
+		dialog.destroy()	
+	
 	def cut(self,widget):
 		pg=self.notebook.get_current_page()
 		self.textbuffer[pg].cut_clipboard(self.clipboard, True)
@@ -874,8 +923,7 @@ class window():
 	def _on_delete(self, text_buffer, start_iter, end_iter, data=None):
 		pg=self.notebook.get_current_page()
                 print "deleting\n"
-		text = self.textbuffer[pg].get_tex
-		t(start_iter,end_iter, False)        
+		text = self.textbuffer[pg].get_text(start_iter,end_iter, False)        
 		cmd = {"action":"insert","offset":start_iter.get_offset(),"text":text}
 		self._add_undo(cmd)
 
