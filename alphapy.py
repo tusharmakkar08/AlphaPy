@@ -7,6 +7,7 @@ from Compiler import compiler
 from Syntax import syntaxhighlighter
 from Spelling import spell_check
 import zlib
+from Speech import speech
 
 class window():
 		
@@ -615,6 +616,7 @@ class window():
 		self.buttn("icons/find_replace.png",self.replace_dialog,"Find & Replace",expand, fill, padding)
 		self.buttn("icons/compress.png",self.compr,"Compress",expand, fill, padding,"Compress")
 		self.buttn("icons/decompress.png",self.decompr,"Decompress",expand, fill, padding)
+		self.buttn("icons/speech.png",self.spee,"Speech",expand, fill, padding,"Speak")  
 		self.buttn("icons/quit.png",self.delete_event,"Quit",expand, fill, padding)  		
 				
 			
@@ -1343,6 +1345,12 @@ class window():
 		name=self.file[pg]
 		syntaxhighlighter.rtf_out(name,19)
 		syntaxhighlighter.open_rtf(name)
+	
+	def spee(self,widget):
+		pg=self.notebook.get_current_page()
+		text=self.textbuffer[pg].get_text(self.textbuffer[pg].get_start_iter(),self.textbuffer[pg].get_end_iter())
+		speech.txt_to_sp(text)
+	
 	
 def main():
 	gtk.main()
