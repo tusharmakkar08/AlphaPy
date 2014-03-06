@@ -28,3 +28,7 @@ Updated
 * Compiler messages displayed in a seperate tab 
 * Scribble Pad
 * Message Pad where messages for spelling check comes 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tusharmakkar08/alphapy/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
