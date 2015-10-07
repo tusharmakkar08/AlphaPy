@@ -23,7 +23,7 @@ Updated
 * Get contents from Google Drive
 * Warnings before saving the unsaved files
 * Warning sounds 
-* Line number and Charachter numbers shown
+* Line number and Character numbers shown
 * Inbuilt Terminal like Geany
 * Compiler messages displayed in a seperate tab 
 * Scribble Pad
